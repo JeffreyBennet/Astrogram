@@ -166,7 +166,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="14" translatesAutoresizingMaskIntoConstraints="NO" id="mY3-He-81X">
-                                <rect key="frame" x="20" y="192" width="353" height="154"/>
+                                <rect key="frame" x="20" y="192" width="353" height="523"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Settings" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nbp-Hf-waK">
                                         <rect key="frame" x="0.0" y="0.0" width="353" height="28"/>
@@ -201,10 +201,10 @@
                                         </connections>
                                     </segmentedControl>
                                     <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="12" translatesAutoresizingMaskIntoConstraints="NO" id="WZ5-WM-xmy">
-                                        <rect key="frame" x="0.0" y="126" width="353" height="28"/>
+                                        <rect key="frame" x="0.0" y="126" width="353" height="397"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Night Mode" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="q17-Mf-rkn">
-                                                <rect key="frame" x="0.0" y="4" width="280" height="20"/>
+                                                <rect key="frame" x="0.0" y="184.66666666666669" width="280" height="28"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="28" id="EhK-dw-bKD"/>
                                                 </constraints>
@@ -213,7 +213,7 @@
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="FhZ-tL-Heb">
-                                                <rect key="frame" x="292" y="0.0" width="63" height="28"/>
+                                                <rect key="frame" x="292" y="0.0" width="63" height="397"/>
                                                 <connections>
                                                     <action selector="nightModeChanged:" destination="oPI-5W-FL8" eventType="valueChanged" id="45B-f5-IOO"/>
                                                 </connections>

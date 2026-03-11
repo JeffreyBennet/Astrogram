@@ -1,0 +1,44 @@
+# macOS
+.DS_Store
+
+# Xcode user data
+xcuserdata/
+*.xcuserdatad
+*.xcuserstate
+
+# Xcode build files
+DerivedData/
+build/
+
+# Swift Package Manager
+.swiftpm/
+.build/
+
+# CocoaPods
+Pods/
+
+# Carthage
+Carthage/Build/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+
+# Archives
+*.xcarchive
+
+# Playgrounds
+timeline.xctimeline
+playground.xcworkspace
+
+# Temporary files
+*.swp
+*.lock
+
+# Logs
+*.log
+
+# API keys / secrets
+Secrets.swift
+.env

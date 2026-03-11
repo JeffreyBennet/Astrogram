@@ -16,6 +16,7 @@ final class MapViewController: UIViewController {
     private var didSetInitialRegion = false
 
     private var overlayRefreshWorkItem: DispatchWorkItem?
+    private var lightPollutionTileOverlay: MKTileOverlay?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -141,8 +142,11 @@ final class MapViewController: UIViewController {
         // Remove existing
         if let lo = lightOverlay { mapView.removeOverlay(lo) }
         if let co = cloudOverlay { mapView.removeOverlay(co) }
+        if let tile = lightPollutionTileOverlay { mapView.removeOverlay(tile) }
+        
         lightOverlay = nil
         cloudOverlay = nil
+        lightPollutionTileOverlay = nil
 
         let visible = mapView.visibleMapRect
         let padded = visible.insetBy(dx: -visible.size.width * 0.2,
@@ -151,9 +155,12 @@ final class MapViewController: UIViewController {
         let s = AppSettings.shared
 
         if s.showLightLayer {
-            let o = HeatGridOverlay(mapView: mapView, mapRect: padded, kind: .lightPollution, opacity: 0.42)
-            lightOverlay = o
-            mapView.addOverlay(o)
+            let overlay = LightPollutionTileOverlay()
+            overlay.canReplaceMapContent = false
+            overlay.tileSize = CGSize(width: 256, height: 256)
+
+            lightPollutionTileOverlay = overlay
+            mapView.addOverlay(overlay, level: .aboveLabels)
         }
 
         if s.showCloudLayer {
@@ -207,20 +214,40 @@ extension MapViewController: MapFiltersDelegate {
 // MARK: - MKMapViewDelegate
 extension MapViewController: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
+        if let tileOverlay = overlay as? MKTileOverlay {
+                return MKTileOverlayRenderer(tileOverlay: tileOverlay)
+            }
         if overlay is HeatGridOverlay {
             return HeatGridOverlayRenderer(overlay: overlay)
         }
         return MKOverlayRenderer(overlay: overlay)
     }
+//
+//    func mapViewDidChangeVisibleRegion(_ mapView: MKMapView) {
+//        overlayRefreshWorkItem?.cancel()
+//
+//        let work = DispatchWorkItem { [weak self] in
+//            self?.refreshOverlays()
+//        }
+//        overlayRefreshWorkItem = work
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35, execute: work)
+//    }
 
-    func mapViewDidChangeVisibleRegion(_ mapView: MKMapView) {
-        overlayRefreshWorkItem?.cancel()
+    func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
+        refreshOverlays()
+        fetchWeatherForVisibleRegion()
+    }
 
-        let work = DispatchWorkItem { [weak self] in
-            self?.refreshOverlays()
+    private func fetchWeatherForVisibleRegion() {
+        let region = mapView.region
+        print("Fetching weather for region: \(region.center)")
+        Task {
+            await WeatherService.shared.fetchGrid(for: region, steps: 14)
+            print("Weather fetch complete")
+            await MainActor.run {
+                self.refreshOverlays()  // redraw with real data once fetched
+            }
         }
-        overlayRefreshWorkItem = work
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35, execute: work)
     }
 }
 

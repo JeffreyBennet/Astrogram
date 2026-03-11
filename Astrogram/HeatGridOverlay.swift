@@ -40,8 +40,6 @@ final class HeatGridOverlayRenderer: MKOverlayRenderer {
         let cellW = drawRect.width / CGFloat(cells)
         let cellH = drawRect.height / CGFloat(cells)
 
-        guard let mapView = overlay.mapView else { return }
-
         context.saveGState()
         context.setAlpha(overlay.opacity)
 
@@ -54,18 +52,21 @@ final class HeatGridOverlayRenderer: MKOverlayRenderer {
                     height: cellH
                 )
 
-                let centerPoint = CGPoint(x: cellRect.midX, y: cellRect.midY)
-                let centerCoord = mapView.convert(centerPoint, toCoordinateFrom: mapView)
+                // convert map point directly to coordinate instead of using mapView.convert
+                let mapPoint = MKMapPoint(
+                    x: overlay.boundingMapRect.minX + (Double(col) + 0.5) * overlay.boundingMapRect.size.width / Double(cells),
+                    y: overlay.boundingMapRect.minY + (Double(row) + 0.5) * overlay.boundingMapRect.size.height / Double(cells)
+                )
+                let centerCoord = mapPoint.coordinate
 
                 let value: Double
                 switch overlay.kind {
                 case .lightPollution:
-                    value = calculator.lightPollutionIndex(at: centerCoord) // higher = worse
+                    value = calculator.lightPollutionIndex(at: centerCoord)
                 case .cloudCover:
-                    value = calculator.cloudCover(at: centerCoord) // higher = worse
+                    value = calculator.cloudCover(at: centerCoord)
                 }
 
-                // Map 0..1 to green->red (green=good)
                 let hue = CGFloat(0.33 * (1.0 - value))
                 let color = UIColor(hue: hue, saturation: 0.9, brightness: 0.95, alpha: 1.0)
 
