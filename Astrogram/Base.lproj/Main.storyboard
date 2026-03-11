@@ -14,11 +14,11 @@
             <objects>
                 <viewController id="BYZ-38-t0r" customClass="MapViewController" customModule="Astrogram" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
-                        <rect key="frame" x="0.0" y="0.0" width="440" height="894"/>
+                        <rect key="frame" x="0.0" y="0.0" width="440" height="884"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="wja-jk-EMm">
-                                <rect key="frame" x="0.0" y="0.0" width="440" height="894"/>
+                                <rect key="frame" x="0.0" y="0.0" width="440" height="884"/>
                                 <standardMapConfiguration key="preferredConfiguration"/>
                             </mapView>
                         </subviews>
@@ -160,7 +160,7 @@
             <objects>
                 <viewController id="oPI-5W-FL8" customClass="SettingsViewController" customModule="Astrogram" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="jVS-wL-jes">
-                        <rect key="frame" x="0.0" y="0.0" width="440" height="894"/>
+                        <rect key="frame" x="0.0" y="0.0" width="440" height="884"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="14" translatesAutoresizingMaskIntoConstraints="NO" id="mY3-He-81X">
@@ -258,7 +258,7 @@
                                     <action selector="createAccountButtonPressed:" destination="22X-aU-0oO" eventType="touchUpInside" id="Hyd-kA-sPo"/>
                                 </connections>
                             </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Status" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mjU-wl-GGX">
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Status" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mjU-wl-GGX">
                                 <rect key="frame" x="30" y="556.33333333333337" width="380" height="20.333333333333371"/>
                                 <constraints>
                                     <constraint firstAttribute="width" relation="greaterThanOrEqual" priority="999" constant="400" id="L3v-kM-lmA"/>
@@ -284,7 +284,7 @@
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="appIcon" translatesAutoresizingMaskIntoConstraints="NO" id="4hv-XZ-tYk">
-                                <rect key="frame" x="156" y="112" width="128" height="128"/>
+                                <rect key="frame" x="192" y="112" width="56" height="56"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="4hv-XZ-tYk" secondAttribute="height" multiplier="1:1" id="ajB-fo-flQ"/>
                                 </constraints>
@@ -384,7 +384,7 @@
                                     <action selector="backToLoginButtonPressed:" destination="B3i-S5-Cgg" eventType="touchUpInside" id="0Bk-J0-oMI"/>
                                 </connections>
                             </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Status" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lgr-kf-1ae">
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Status" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lgr-kf-1ae">
                                 <rect key="frame" x="30" y="592" width="380" height="20.333333333333371"/>
                                 <constraints>
                                     <constraint firstAttribute="width" relation="greaterThanOrEqual" priority="999" constant="400" id="bt9-NM-Lmm"/>
@@ -394,7 +394,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="appIcon" translatesAutoresizingMaskIntoConstraints="NO" id="5tw-JL-FSb">
-                                <rect key="frame" x="156" y="112" width="128" height="128"/>
+                                <rect key="frame" x="192" y="112" width="56" height="56"/>
                                 <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="large"/>
                             </imageView>
                         </subviews>
@@ -501,10 +501,10 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="7Y5-mF-5Ua"/>
+        <segue reference="Uho-Re-66Z"/>
     </inferredMetricsTieBreakers>
     <resources>
-        <image name="appIcon" width="128" height="128"/>
+        <image name="appIcon" width="56" height="56"/>
         <image name="gear" catalog="system" width="128" height="122"/>
         <image name="line.3.horizontal.decrease.circle" catalog="system" width="128" height="123"/>
         <image name="map" catalog="system" width="128" height="112"/>
