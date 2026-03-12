@@ -5,10 +5,20 @@
 xcuserdata/
 *.xcuserdatad
 *.xcuserstate
+*.xcscmblueprint
+*.xccheckout
+
+# Xcode workspace user data
+*.xcworkspace/xcuserdata/
+
+# Xcode breakpoints
+*.xcbkptlist
+
+# Xcode scheme management
+xcschememanagement.plist
 
 # Xcode build files
 DerivedData/
-build/
 
 # Swift Package Manager
 .swiftpm/
