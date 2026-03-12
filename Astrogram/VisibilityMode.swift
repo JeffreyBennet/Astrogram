@@ -3,38 +3,50 @@ import CoreLocation
 
 struct VisibilitySummary {
     let coordinate: CLLocationCoordinate2D
-    let lightPollutionIndex: Double   // 0 (best/dark) ... 1 (worst/bright)
-    let cloudCover: Double            // 0 (clear) ... 1 (overcast)
-    let overallScore: Int             // 0...100 higher is better
+    let lightPollutionIndex: Double
+    let cloudCover: Double
+    let visibility: Double
+    let humidity: Double
+    let overallScore: Int
     let label: String
+    let isRealData: Bool
 }
 
 final class VisibilityCalculator {
 
     private func seededNoise(lat: Double, lon: Double, salt: Double) -> Double {
         let x = sin((lat + salt) * 12.9898 + (lon - salt) * 78.233) * 43758.5453
-        return x - floor(x) // 0..1
+        return x - floor(x)
     }
 
+    //still currently fake noise
     func lightPollutionIndex(at coord: CLLocationCoordinate2D) -> Double {
-        // mock: ~0.15..0.95
-        let n = seededNoise(lat: coord.latitude, lon: coord.longitude, salt: 1.7)
-        return 0.15 + 0.80 * n
+//        let n = seededNoise(lat: coord.latitude, lon: coord.longitude, salt: 1.7)
+        return 0.0
     }
 
+    //checks cache for hit, if none, then fake noise
     func cloudCover(at coord: CLLocationCoordinate2D) -> Double {
-        // mock: ~0.05..0.95
+        if let w = WeatherService.shared.cachedData(near: coord) {
+//            print("hit \(coord.latitude), \(coord.longitude)")
+            return w.cloudCoverFraction
+        }
+//        print("miss \(coord.latitude), \(coord.longitude)")
         let n = seededNoise(lat: coord.latitude, lon: coord.longitude, salt: 9.3)
         return 0.05 + 0.90 * n
     }
 
     func summary(at coord: CLLocationCoordinate2D) -> VisibilitySummary {
         let lp = lightPollutionIndex(at: coord)
-        let cc = cloudCover(at: coord)
+        let weather = WeatherService.shared.cachedData(near: coord)
+        let cc = weather?.cloudCoverFraction ?? cloudCover(at: coord)
+        let vis = weather?.visibilityFraction ?? 1.0
+        let hum = weather?.humidityFraction ?? 0.5
+        let isReal = weather != nil
 
-        // simple scoring: penalize both (clouds slightly more)
-        let scoreDouble = 100.0 - (lp * 55.0) - (cc * 65.0)
-        let clamped = max(0, min(100, Int(scoreDouble.rounded())))
+        // clouds and light pollution hurt most, low visibility and high humidity also penalize
+        let score = 100.0 - (lp * 40.0) - (cc * 40.0) - ((1.0 - vis) * 10.0) - (hum * 10.0)
+        let clamped = max(0, min(100, Int(score.rounded())))
 
         let label: String
         switch clamped {
@@ -44,13 +56,16 @@ final class VisibilityCalculator {
         case 20...39:  label = "Poor"
         default:       label = "Bad"
         }
-
+        print(isReal)
         return VisibilitySummary(
             coordinate: coord,
             lightPollutionIndex: lp,
             cloudCover: cc,
+            visibility: vis,
+            humidity: hum,
             overallScore: clamped,
-            label: label
+            label: label,
+            isRealData: isReal
         )
     }
 }

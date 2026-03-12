@@ -1,7 +1,7 @@
 import UIKit
 
 protocol MapFiltersDelegate: AnyObject {
-    func filtersDidChange(showLight: Bool, showClouds: Bool, nightMode: Bool)
+    func filtersDidChange(showLight: Bool, showClouds: Bool, nightMode: Bool, showVisibility: Bool)
 }
 
 final class MapFiltersViewController: UIViewController {
@@ -11,7 +11,8 @@ final class MapFiltersViewController: UIViewController {
     @IBOutlet private weak var lightSwitch: UISwitch!
     @IBOutlet private weak var cloudsSwitch: UISwitch!
     @IBOutlet private weak var nightModeSwitch: UISwitch!
-
+    @IBOutlet weak var visibilityRatingSwitch: UISwitch!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         loadFromSettings()
@@ -22,13 +23,17 @@ final class MapFiltersViewController: UIViewController {
         lightSwitch.isOn = s.showLightLayer
         cloudsSwitch.isOn = s.showCloudLayer
         nightModeSwitch.isOn = s.nightMode
+        visibilityRatingSwitch.isOn = s.showVisibility
+            
     }
 
     private func notifyDelegate() {
         delegate?.filtersDidChange(
             showLight: lightSwitch.isOn,
             showClouds: cloudsSwitch.isOn,
-            nightMode: nightModeSwitch.isOn
+            nightMode: nightModeSwitch.isOn,
+            showVisibility: visibilityRatingSwitch.isOn
+            
         )
     }
 
@@ -41,6 +46,9 @@ final class MapFiltersViewController: UIViewController {
     }
 
     @IBAction private func nightChanged(_ sender: UISwitch) {
+        notifyDelegate()
+    }
+    @IBAction func visibilityChanged(_ sender: Any) {
         notifyDelegate()
     }
 }

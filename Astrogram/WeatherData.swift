@@ -1,0 +1,107 @@
+//
+//  WeatherData.swift
+//  Astrogram
+//
+//  Created by Helial Mordahl on 3/10/26.
+//
+
+
+import Foundation
+import CoreLocation
+import MapKit
+
+struct WeatherData {
+    let coordinate: CLLocationCoordinate2D
+    let cloudCoverFraction: Double  // 0..1
+    let visibilityFraction: Double  // 0..1 (normalized from 0..10km)
+    let humidityFraction: Double    // 0..1
+}
+
+final class WeatherService {
+    static let shared = WeatherService()
+    private init() {}
+    
+    private let apiKey = SECRET_KEY
+    private var cache: [String: WeatherData] = [:]
+    private let cacheQueue = DispatchQueue(label: "WeatherService.cache.queue")
+    
+    private func cacheKey(_ coord: CLLocationCoordinate2D) -> String {
+        let bucketSize = 0.25
+        let lat = (coord.latitude / bucketSize).rounded() * bucketSize
+        let lon = (coord.longitude / bucketSize).rounded() * bucketSize
+        return String(format: "%.2f,%.2f", lat, lon)
+    }
+    
+    func cachedData(near coord: CLLocationCoordinate2D) -> WeatherData? {
+        cacheQueue.sync {
+            if let w = cache[cacheKey(coord)] { return w }
+            return nil
+        }
+    }
+
+    
+     private func fetch(coord: CLLocationCoordinate2D) async {
+        let urlString = "https://api.weatherapi.com/v1/current.json?key=\(apiKey)&q=\(coord.latitude),\(coord.longitude)&aqi=no"
+        guard let url = URL(string: urlString) else { return }
+        
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let json = try JSONDecoder().decode(WeatherAPIResponse.self, from: data)
+            let current = json.current
+            
+            let weather = WeatherData(
+                coordinate: coord,
+                cloudCoverFraction: Double(current.cloud) / 100.0,
+                visibilityFraction: min(current.vis_km / 10.0, 1.0),
+                humidityFraction: Double(current.humidity) / 100.0
+            )
+            
+            cacheQueue.sync {
+                cache[cacheKey(coord)] = weather
+            }
+            
+        } catch {
+            print("fetch failed \(coord.latitude),\(coord.longitude): \(error)")
+        }
+    }
+    
+    //called by heatgridoverlay; fetch exact needed coordinates
+    func fetchCoordinates(_ coords: [CLLocationCoordinate2D]) async {
+        for coord in coords {
+            let key = cacheKey(coord)
+            let alreadyCached = cacheQueue.sync { cache[key] != nil }
+            guard !alreadyCached else { continue }
+            await fetch(coord: coord)
+        }
+    }
+}
+
+
+//struct format for api response, handles vis sometimes being double
+//note: api has more data in it, but this is all i feel is necessary.
+//can easily expand 
+private struct WeatherAPIResponse: Decodable {
+    let current: Current
+
+    //need this for varying returns of double or int
+    struct Current: Decodable {
+        let cloud: Int
+        let vis_km: Double
+        let humidity: Int
+
+        enum CodingKeys: String, CodingKey {
+            case cloud, vis_km, humidity
+        }
+
+        init(from decoder: Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            cloud = try c.decode(Int.self, forKey: .cloud)
+            humidity = try c.decode(Int.self, forKey: .humidity)
+            if let d = try? c.decode(Double.self, forKey: .vis_km) {
+                vis_km = d
+            } else {
+                vis_km = Double(try c.decode(Int.self, forKey: .vis_km))
+            }
+        }
+    }
+}
