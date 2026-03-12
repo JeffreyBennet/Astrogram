@@ -8,6 +8,7 @@ final class MapViewController: UIViewController {
     @IBOutlet weak var filtersButton: UIBarButtonItem!
 
     private let locationManager = CLLocationManager()
+    private let calculator = VisibilityCalculator()
 
     private var visibilityOverlay: HeatGridOverlay?
     private var cloudTileOverlay: MKTileOverlay?
@@ -29,6 +30,7 @@ final class MapViewController: UIViewController {
 
         configureLocation()
         applyNightModeIfNeeded()
+        addTapGesture()
 
         refreshOverlays()
     }
@@ -147,6 +149,39 @@ final class MapViewController: UIViewController {
                 }
             }
         }
+    }
+
+    private func addTapGesture() {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(mapTapped(_:)))
+        mapView.addGestureRecognizer(tap)
+    }
+
+    @objc private func mapTapped(_ gesture: UITapGestureRecognizer) {
+        let point = gesture.location(in: mapView)
+        let coord = mapView.convert(point, toCoordinateFrom: mapView)
+
+        Task {
+            let summary = await calculator.summary(at: coord)
+            await MainActor.run {
+                let title = "Visibility: \(summary.label) (\(summary.overallScore)/100)"
+                var parts: [String] = []
+                parts.append(String(format: "Cloud cover: %.0f%%", summary.cloudCover * 100))
+                parts.append(String(format: "Visibility: %.0f%%", summary.visibility * 100))
+                parts.append(String(format: "Humidity: %.0f%%", summary.humidity * 100))
+                let subtitle = parts.joined(separator: " · ")
+                self.dropPin(at: coord, title: title, subtitle: subtitle)
+            }
+        }
+    }
+
+    private func dropPin(at coord: CLLocationCoordinate2D, title: String, subtitle: String) {
+        mapView.removeAnnotations(mapView.annotations.filter { !($0 is MKUserLocation) })
+        let pin = MKPointAnnotation()
+        pin.coordinate = coord
+        pin.title = title
+        pin.subtitle = subtitle
+        mapView.addAnnotation(pin)
+        mapView.selectAnnotation(pin, animated: true)
     }
 
     @IBAction private func recenterTapped(_ sender: Any) {

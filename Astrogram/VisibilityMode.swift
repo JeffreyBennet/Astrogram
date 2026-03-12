@@ -19,25 +19,37 @@ final class VisibilityCalculator {
         return x - floor(x)
     }
 
-    //still currently fake noise
-    func lightPollutionIndex(at coord: CLLocationCoordinate2D) -> Double {
-//        let n = seededNoise(lat: coord.latitude, lon: coord.longitude, salt: 1.7)
-        return 0.0
+    /// Async version — fetches tile from network if not cached. Use for tap interactions.
+    func lightPollutionIndex(at coord: CLLocationCoordinate2D) async -> Double {
+        return await LightPollutionTileOverlay.lightPollutionIndex(at: coord)
     }
 
-    //checks cache for hit, if none, then fake noise
+    /// Sync version — returns cached value or 0. Use for renderer draw calls.
+    func lightPollutionIndexCached(at coord: CLLocationCoordinate2D) -> Double {
+        return LightPollutionTileOverlay.cachedLightPollutionIndex(at: coord)
+    }
+
     func cloudCover(at coord: CLLocationCoordinate2D) -> Double {
         if let w = WeatherService.shared.cachedData(near: coord) {
-//            print("hit \(coord.latitude), \(coord.longitude)")
             return w.cloudCoverFraction
         }
-//        print("miss \(coord.latitude), \(coord.longitude)")
         let n = seededNoise(lat: coord.latitude, lon: coord.longitude, salt: 9.3)
         return 0.05 + 0.90 * n
     }
 
-    func summary(at coord: CLLocationCoordinate2D) -> VisibilitySummary {
-        let lp = lightPollutionIndex(at: coord)
+    /// Async summary — fetches light pollution from network. Use for tap interactions.
+    func summary(at coord: CLLocationCoordinate2D) async -> VisibilitySummary {
+        let lp = await lightPollutionIndex(at: coord)
+        return buildSummary(at: coord, lp: lp)
+    }
+
+    /// Sync summary — uses cached light pollution only. Use for renderer draw calls.
+    func summaryCached(at coord: CLLocationCoordinate2D) -> VisibilitySummary {
+        let lp = lightPollutionIndexCached(at: coord)
+        return buildSummary(at: coord, lp: lp)
+    }
+
+    private func buildSummary(at coord: CLLocationCoordinate2D, lp: Double) -> VisibilitySummary {
         let weather = WeatherService.shared.cachedData(near: coord)
         let cc = weather?.cloudCoverFraction ?? cloudCover(at: coord)
         let vis = weather?.visibilityFraction ?? 1.0

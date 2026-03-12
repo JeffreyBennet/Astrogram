@@ -51,14 +51,14 @@ final class HeatGridOverlayRenderer: MKOverlayRenderer {
 
                 switch overlay.kind {
                 case .lightPollution:
-                    value = calculator.lightPollutionIndex(at: centerCoord)
+                    value = calculator.lightPollutionIndexCached(at: centerCoord)
                     hasRealData = true
                 case .cloudCover:
                     let weather = WeatherService.shared.cachedData(near: centerCoord)
                     hasRealData = weather != nil
                     value = weather?.cloudCoverFraction ?? 0.5
                 case .visibility:
-                    let summary = calculator.summary(at: centerCoord)
+                    let summary = calculator.summaryCached(at: centerCoord)
                     hasRealData = summary.isRealData
                     value = Double(summary.overallScore) / 100.0
                 }
