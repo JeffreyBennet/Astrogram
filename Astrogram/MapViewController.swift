@@ -148,11 +148,9 @@ final class MapViewController: UIViewController {
     private func refreshOverlays() {
         if let lo = lightOverlay { mapView.removeOverlay(lo) }
         if let vo = visibilityOverlay { mapView.removeOverlay(vo) }
-        if let tile = lightPollutionTileOverlay { mapView.removeOverlay(tile) }
 
         lightOverlay = nil
         visibilityOverlay = nil
-        lightPollutionTileOverlay = nil
 
         let visible = mapView.visibleMapRect
         let padded = visible.insetBy(dx: -visible.size.width * 0.2,
@@ -160,13 +158,18 @@ final class MapViewController: UIViewController {
 
         let s = AppSettings.shared
 
-        if s.showLightLayer {
-            let overlay = LightPollutionTileOverlay()
+        // Tile overlay: only add/remove when toggle state changes,
+        // not on every region change — MKTileOverlay handles its own tiling.
+        if s.showLightLayer && lightPollutionTileOverlay == nil {
+            let overlay = LightPollutionTileOverlay(urlTemplate: nil)
             overlay.canReplaceMapContent = false
             overlay.tileSize = CGSize(width: 256, height: 256)
 
             lightPollutionTileOverlay = overlay
             mapView.addOverlay(overlay, level: .aboveLabels)
+        } else if !s.showLightLayer, let tile = lightPollutionTileOverlay {
+            mapView.removeOverlay(tile)
+            lightPollutionTileOverlay = nil
         }
 
         if s.showVisibility {
@@ -222,7 +225,9 @@ extension MapViewController: MapFiltersDelegate {
 extension MapViewController: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
         if let tileOverlay = overlay as? MKTileOverlay {
-            return MKTileOverlayRenderer(tileOverlay: tileOverlay)
+            let renderer = MKTileOverlayRenderer(tileOverlay: tileOverlay)
+            renderer.alpha = 0.55
+            return renderer
         }
         if overlay is HeatGridOverlay {
             return HeatGridOverlayRenderer(overlay: overlay)

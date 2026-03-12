@@ -21,7 +21,7 @@ final class WeatherService {
     static let shared = WeatherService()
     private init() {}
     
-    private let apiKey = SECRET_KEY
+    private let apiKey = "b36c476ba7d74a5c899220631261003"
     private var cache: [String: WeatherData] = [:]
     private let cacheQueue = DispatchQueue(label: "WeatherService.cache.queue")
     
