@@ -13,13 +13,9 @@ final class HeatGridOverlay: NSObject, MKOverlay {
     let kind: HeatLayerKind
     let opacity: CGFloat
 
-    // IMPORTANT: keep a weak reference to the mapView that owns this overlay
-    weak var mapView: MKMapView?
-
-    init(mapView: MKMapView, mapRect: MKMapRect, kind: HeatLayerKind, opacity: CGFloat) {
-        self.mapView = mapView
-        self.boundingMapRect = mapRect
-        self.coordinate = MKCoordinateRegion(mapRect).center
+    init(kind: HeatLayerKind, opacity: CGFloat) {
+        self.boundingMapRect = MKMapRect.world
+        self.coordinate = CLLocationCoordinate2D(latitude: 0, longitude: 0)
         self.kind = kind
         self.opacity = opacity
         super.init()
@@ -28,49 +24,34 @@ final class HeatGridOverlay: NSObject, MKOverlay {
 
 final class HeatGridOverlayRenderer: MKOverlayRenderer {
     private let calculator = VisibilityCalculator()
-    
+    private let sampleCount = 8
+
     override func draw(_ mapRect: MKMapRect, zoomScale: MKZoomScale, in context: CGContext) {
         guard let overlay = overlay as? HeatGridOverlay else { return }
-        
-        let rect = overlay.boundingMapRect.intersection(mapRect)
-        if rect.isNull { return }
-        
-        let cells: Int = zoomScale < 0.02 ? 16 : (zoomScale < 0.08 ? 22 : 28)
-        let drawRect = self.rect(for: overlay.boundingMapRect)
-        let cellW = drawRect.width / CGFloat(cells)
-        let cellH = drawRect.height / CGFloat(cells)
-        
+
+        let n = sampleCount
         var missingCoords: [CLLocationCoordinate2D] = []
-        
-        context.saveGState()
-        context.setAlpha(overlay.opacity)
-        
-        for row in 0..<cells {
-            for col in 0..<cells {
-                let cellRect = CGRect(
-                    x: drawRect.minX + CGFloat(col) * cellW,
-                    y: drawRect.minY + CGFloat(row) * cellH,
-                    width: cellW,
-                    height: cellH
-                )
-                
+        var pixels = [UInt8](repeating: 0, count: n * n * 4)
+        var hasAnyData = false
+
+        for row in 0..<n {
+            for col in 0..<n {
                 let mapPoint = MKMapPoint(
-                    x: overlay.boundingMapRect.minX + (Double(col) + 0.5) * overlay.boundingMapRect.size.width / Double(cells),
-                    y: overlay.boundingMapRect.minY + (Double(row) + 0.5) * overlay.boundingMapRect.size.height / Double(cells)
+                    x: mapRect.minX + (Double(col) + 0.5) * mapRect.size.width / Double(n),
+                    y: mapRect.minY + (Double(row) + 0.5) * mapRect.size.height / Double(n)
                 )
                 let centerCoord = mapPoint.coordinate
-                
+
                 if WeatherService.shared.cachedData(near: centerCoord) == nil {
                     missingCoords.append(centerCoord)
                 }
-                
+
                 let value: Double
                 let hasRealData: Bool
 
                 switch overlay.kind {
                 case .lightPollution:
                     value = calculator.lightPollutionIndex(at: centerCoord)
-                    //placeholder
                     hasRealData = true
                 case .cloudCover:
                     let weather = WeatherService.shared.cachedData(near: centerCoord)
@@ -82,29 +63,54 @@ final class HeatGridOverlayRenderer: MKOverlayRenderer {
                     value = Double(summary.overallScore) / 100.0
                 }
 
+                let idx = (row * n + col) * 4
                 if hasRealData {
+                    hasAnyData = true
                     let hue = CGFloat(0.33 * (1.0 - value))
                     let color = UIColor(hue: hue, saturation: 0.9, brightness: 0.95, alpha: 1.0)
-                    context.setFillColor(color.cgColor)
-                    
-                //not real data case
-                } else {
-                    // loading state - draw neutral gray
-                    context.setFillColor(UIColor.gray.withAlphaComponent(0.3).cgColor)
+                    var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+                    color.getRed(&r, green: &g, blue: &b, alpha: &a)
+                    pixels[idx]     = UInt8(r * 255)
+                    pixels[idx + 1] = UInt8(g * 255)
+                    pixels[idx + 2] = UInt8(b * 255)
+                    pixels[idx + 3] = 255
                 }
-
-                context.fill(cellRect.insetBy(dx: 0.5, dy: 0.5))
+                // else: stays at 0,0,0,0 (fully transparent)
             }
         }
-        
-        context.restoreGState()
-        
-        //fetch missing then redraw
+
+        if hasAnyData {
+            let colorSpace = CGColorSpaceCreateDeviceRGB()
+            guard let provider = CGDataProvider(data: Data(pixels) as CFData),
+                  let image = CGImage(
+                    width: n, height: n,
+                    bitsPerComponent: 8, bitsPerPixel: 32,
+                    bytesPerRow: n * 4,
+                    space: colorSpace,
+                    bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue),
+                    provider: provider,
+                    decode: nil, shouldInterpolate: true,
+                    intent: .defaultIntent
+                  ) else { return }
+
+            let drawRect = self.rect(for: mapRect)
+
+            context.saveGState()
+            context.interpolationQuality = .high
+
+            UIGraphicsPushContext(context)
+            UIImage(cgImage: image).draw(in: drawRect, blendMode: .normal, alpha: overlay.opacity)
+            UIGraphicsPopContext()
+
+            context.restoreGState()
+        }
+
+        //fetch missing then redraw this tile
         if !missingCoords.isEmpty {
             Task {
                 await WeatherService.shared.fetchCoordinates(missingCoords)
                 await MainActor.run {
-                    self.setNeedsDisplay(overlay.boundingMapRect)
+                    self.setNeedsDisplay(mapRect)
                 }
             }
         }

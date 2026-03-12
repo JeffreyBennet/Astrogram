@@ -6,14 +6,13 @@ final class MapViewController: UIViewController {
 
     @IBOutlet private weak var mapView: MKMapView!
     @IBOutlet weak var filtersButton: UIBarButtonItem!
-    
+
     private let locationManager = CLLocationManager()
 
-    private var lightOverlay: HeatGridOverlay?
     private var visibilityOverlay: HeatGridOverlay?
     private var cloudTileOverlay: MKTileOverlay?
     private var rainTileOverlay: MKTileOverlay?
-    
+
     private var didSetInitialRegion = false
     private var overlayRefreshWorkItem: DispatchWorkItem?
     private var lightPollutionTileOverlay: MKTileOverlay?
@@ -33,7 +32,7 @@ final class MapViewController: UIViewController {
 
         refreshOverlays()
     }
-    
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         setInitialRegionIfNeeded()
@@ -51,20 +50,18 @@ final class MapViewController: UIViewController {
         locationManager.requestWhenInUseAuthorization()
         locationManager.startUpdatingLocation()
     }
-    
+
     private func setInitialRegionIfNeeded() {
         guard !didSetInitialRegion else { return }
         didSetInitialRegion = true
 
         let fallback = CLLocationCoordinate2D(latitude: 41.8781, longitude: -87.6298)
-
         let coord = locationManager.location?.coordinate ?? fallback
 
         let region = MKCoordinateRegion(
             center: coord,
             span: MKCoordinateSpan(latitudeDelta: 0.7, longitudeDelta: 0.7)
         )
-
         mapView.setRegion(region, animated: false)
     }
 
@@ -75,25 +72,15 @@ final class MapViewController: UIViewController {
     }
 
     private func refreshOverlays() {
-
-        if let lo = lightOverlay { mapView.removeOverlay(lo) }
-        if let vo = visibilityOverlay { mapView.removeOverlay(vo) }
+        // Remove cloud/rain overlays (recreated each time since they're cheap tile URLs)
         if let ct = cloudTileOverlay { mapView.removeOverlay(ct) }
         if let rt = rainTileOverlay { mapView.removeOverlay(rt) }
-
-        lightOverlay = nil
-        visibilityOverlay = nil
         cloudTileOverlay = nil
         rainTileOverlay = nil
 
-        let visible = mapView.visibleMapRect
-        let padded = visible.insetBy(dx: -visible.size.width * 0.2,
-                                     dy: -visible.size.height * 0.2)
-
         let s = AppSettings.shared
 
-        // Tile overlay: only add/remove when toggle state changes,
-        // not on every region change — MKTileOverlay handles its own tiling.
+        // Light pollution: persistent, only add/remove on toggle
         if s.showLightLayer && lightPollutionTileOverlay == nil {
             let overlay = LightPollutionTileOverlay(urlTemplate: nil)
             overlay.canReplaceMapContent = false
@@ -106,41 +93,74 @@ final class MapViewController: UIViewController {
             lightPollutionTileOverlay = nil
         }
 
+        // Cloud layer
         if s.showCloudLayer {
             let tileOverlay = VisibilityService.shared.weatherLayer(type: .clouds)
             cloudTileOverlay = tileOverlay
             mapView.addOverlay(tileOverlay, level: .aboveLabels)
         }
-        
+
+        // Rain layer
         if s.showRainLayer {
             let tileOverlay = VisibilityService.shared.weatherLayer(type: .precipitation)
             rainTileOverlay = tileOverlay
             mapView.addOverlay(tileOverlay, level: .aboveLabels)
         }
 
-        if s.showVisibility {
-            let o = HeatGridOverlay(mapView: mapView, mapRect: padded, kind: .visibility, opacity: 0.35)
+        // Visibility overlay: persistent (world-bounded), only add/remove on toggle
+        if s.showVisibility && visibilityOverlay == nil {
+            let o = HeatGridOverlay(kind: .visibility, opacity: 0.35)
             visibilityOverlay = o
             mapView.addOverlay(o)
+            preloadWeatherData()
+            WeatherService.shared.startCrawling(from: mapView.region.center)
+        } else if !s.showVisibility, let o = visibilityOverlay {
+            mapView.removeOverlay(o)
+            visibilityOverlay = nil
+        }
+    }
+
+    /// Preload weather data for the visible area + surrounding region so
+    /// tiles render with real data instead of being empty.
+    private func preloadWeatherData() {
+        let region = mapView.region
+        let latPad = region.span.latitudeDelta * 0.6
+        let lonPad = region.span.longitudeDelta * 0.6
+        let step = 0.25
+
+        var coords: [CLLocationCoordinate2D] = []
+        var lat = region.center.latitude - latPad
+        while lat <= region.center.latitude + latPad {
+            var lon = region.center.longitude - lonPad
+            while lon <= region.center.longitude + lonPad {
+                coords.append(CLLocationCoordinate2D(latitude: lat, longitude: lon))
+                lon += step
+            }
+            lat += step
+        }
+
+        Task {
+            await WeatherService.shared.fetchCoordinates(coords)
+            await MainActor.run {
+                if let overlay = self.visibilityOverlay {
+                    self.mapView.renderer(for: overlay)?.setNeedsDisplay(self.mapView.visibleMapRect)
+                }
+            }
         }
     }
 
     @IBAction private func recenterTapped(_ sender: Any) {
         if let coord = locationManager.location?.coordinate {
-
             let region = MKCoordinateRegion(
                 center: coord,
                 span: MKCoordinateSpan(latitudeDelta: 0.35, longitudeDelta: 0.35)
             )
-
             mapView.setRegion(region, animated: true)
         }
     }
 
     @IBAction func filtersTapped(_ sender: Any) {
-
         let sb = UIStoryboard(name: "Main", bundle: nil)
-
         guard let vc = sb.instantiateViewController(withIdentifier: "MapFiltersViewController") as? MapFiltersViewController else {
             return
         }
@@ -163,7 +183,6 @@ final class MapViewController: UIViewController {
 extension MapViewController: MapFiltersDelegate {
 
     func filtersDidChange(showLight: Bool, showClouds: Bool, showRain: Bool, nightMode: Bool, showVisibility: Bool) {
-
         let s = AppSettings.shared
         s.showLightLayer = showLight
         s.showCloudLayer = showClouds
@@ -180,7 +199,6 @@ extension MapViewController: MapFiltersDelegate {
 extension MapViewController: MKMapViewDelegate {
 
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
-
         if let tileOverlay = overlay as? MKTileOverlay {
             let renderer = MKTileOverlayRenderer(tileOverlay: tileOverlay)
             renderer.alpha = 0.75
@@ -195,8 +213,16 @@ extension MapViewController: MKMapViewDelegate {
     }
 
     func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
-        refreshOverlays()
-        //        fetchWeatherForVisibleRegion()
+        guard visibilityOverlay != nil else { return }
+        overlayRefreshWorkItem?.cancel()
+        let work = DispatchWorkItem { [weak self] in
+            self?.preloadWeatherData()
+            if let center = self?.mapView.region.center {
+                WeatherService.shared.startCrawling(from: center)
+            }
+        }
+        overlayRefreshWorkItem = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: work)
     }
 }
 
@@ -204,7 +230,6 @@ extension MapViewController: MKMapViewDelegate {
 extension MapViewController: CLLocationManagerDelegate {
 
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-
         switch manager.authorizationStatus {
         case .authorizedAlways, .authorizedWhenInUse:
             manager.startUpdatingLocation()
@@ -212,9 +237,8 @@ extension MapViewController: CLLocationManagerDelegate {
             break
         }
     }
-    
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
 
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard !didSetInitialRegion else { return }
         guard let loc = locations.last else { return }
 
@@ -224,7 +248,6 @@ extension MapViewController: CLLocationManagerDelegate {
             center: loc.coordinate,
             span: MKCoordinateSpan(latitudeDelta: 0.35, longitudeDelta: 0.35)
         )
-
         mapView.setRegion(region, animated: true)
     }
 }

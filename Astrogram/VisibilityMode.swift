@@ -56,7 +56,6 @@ final class VisibilityCalculator {
         case 20...39:  label = "Poor"
         default:       label = "Bad"
         }
-        print(isReal)
         return VisibilitySummary(
             coordinate: coord,
             lightPollutionIndex: lp,
