@@ -12,6 +12,7 @@ final class MapViewController: UIViewController {
 
     private var lightOverlay: HeatGridOverlay?
     private var cloudOverlay: HeatGridOverlay?
+    private var visibilityOverlay: HeatGridOverlay?
     
     private var didSetInitialRegion = false
 
@@ -120,9 +121,15 @@ final class MapViewController: UIViewController {
         case .light:
             s.showLightLayer = true
             s.showCloudLayer = false
+            s.showVisibility = false
         case .clouds:
             s.showLightLayer = false
             s.showCloudLayer = true
+            s.showVisibility = false
+        case .visibility:
+            s.showLightLayer = false
+            s.showCloudLayer = false
+            s.showVisibility = true
         }
     }
 
@@ -139,13 +146,12 @@ final class MapViewController: UIViewController {
     }
 
     private func refreshOverlays() {
-        // Remove existing
         if let lo = lightOverlay { mapView.removeOverlay(lo) }
-        if let co = cloudOverlay { mapView.removeOverlay(co) }
+        if let vo = visibilityOverlay { mapView.removeOverlay(vo) }
         if let tile = lightPollutionTileOverlay { mapView.removeOverlay(tile) }
-        
+
         lightOverlay = nil
-        cloudOverlay = nil
+        visibilityOverlay = nil
         lightPollutionTileOverlay = nil
 
         let visible = mapView.visibleMapRect
@@ -163,9 +169,9 @@ final class MapViewController: UIViewController {
             mapView.addOverlay(overlay, level: .aboveLabels)
         }
 
-        if s.showCloudLayer {
-            let o = HeatGridOverlay(mapView: mapView, mapRect: padded, kind: .cloudCover, opacity: 0.35)
-            cloudOverlay = o
+        if s.showVisibility {
+            let o = HeatGridOverlay(mapView: mapView, mapRect: padded, kind: .visibility, opacity: 0.35)
+            visibilityOverlay = o
             mapView.addOverlay(o)
         }
     }
@@ -200,11 +206,12 @@ final class MapViewController: UIViewController {
 
 // MARK: - Filters Delegate
 extension MapViewController: MapFiltersDelegate {
-    func filtersDidChange(showLight: Bool, showClouds: Bool, nightMode: Bool) {
+    func filtersDidChange(showLight: Bool, showClouds: Bool, nightMode: Bool, showVisibility: Bool) {
         let s = AppSettings.shared
         s.showLightLayer = showLight
         s.showCloudLayer = showClouds
         s.nightMode = nightMode
+        s.showVisibility = showVisibility
 
         applyNightModeIfNeeded()
         refreshOverlays()
@@ -215,42 +222,43 @@ extension MapViewController: MapFiltersDelegate {
 extension MapViewController: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
         if let tileOverlay = overlay as? MKTileOverlay {
-                return MKTileOverlayRenderer(tileOverlay: tileOverlay)
-            }
+            return MKTileOverlayRenderer(tileOverlay: tileOverlay)
+        }
         if overlay is HeatGridOverlay {
             return HeatGridOverlayRenderer(overlay: overlay)
         }
         return MKOverlayRenderer(overlay: overlay)
     }
-//
-//    func mapViewDidChangeVisibleRegion(_ mapView: MKMapView) {
-//        overlayRefreshWorkItem?.cancel()
-//
-//        let work = DispatchWorkItem { [weak self] in
-//            self?.refreshOverlays()
-//        }
-//        overlayRefreshWorkItem = work
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35, execute: work)
-//    }
-
+    //
+    //    func mapViewDidChangeVisibleRegion(_ mapView: MKMapView) {
+    //        overlayRefreshWorkItem?.cancel()
+    //
+    //        let work = DispatchWorkItem { [weak self] in
+    //            self?.refreshOverlays()
+    //        }
+    //        overlayRefreshWorkItem = work
+    //        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35, execute: work)
+    //    }
+    
     func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
         refreshOverlays()
-        fetchWeatherForVisibleRegion()
+        //        fetchWeatherForVisibleRegion()
     }
-
-    private func fetchWeatherForVisibleRegion() {
-        let region = mapView.region
-        print("Fetching weather for region: \(region.center)")
-        Task {
-            await WeatherService.shared.fetchGrid(for: region, steps: 14)
-            print("Weather fetch complete")
-            await MainActor.run {
-                self.refreshOverlays()  // redraw with real data once fetched
-            }
-        }
-    }
+    
+    //    private func fetchWeatherForVisibleRegion() {
+    //        let region = mapView.region
+    //        print("Fetching weather for region: \(region.center)")
+    //        Task {
+    //            await WeatherService.shared.fetchGrid(for: region, steps: 14)
+    //            print("Weather fetch complete")
+    //            await MainActor.run {
+    //                self.refreshOverlays()  // redraw with real data once fetched
+    //            }
+    //        }
+    //    }
+    //}
+    
 }
-
 // MARK: - CLLocationManagerDelegate
 extension MapViewController: CLLocationManagerDelegate {
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {

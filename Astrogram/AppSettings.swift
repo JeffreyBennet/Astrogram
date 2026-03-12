@@ -4,6 +4,7 @@ enum StartupLayer: Int {
     case none = 0
     case light = 1
     case clouds = 2
+    case visibility = 3
 }
 
 final class AppSettings {
@@ -15,6 +16,7 @@ final class AppSettings {
         static let showClouds = "showCloudLayer"
         static let startupLayer = "startupLayer"
         static let nightMode = "nightMode"
+        static let showVisibility = "showVisibility"
     }
 
     var showLightLayer: Bool {
@@ -35,5 +37,10 @@ final class AppSettings {
     var nightMode: Bool {
         get { defaults.object(forKey: Keys.nightMode) as? Bool ?? false }
         set { defaults.set(newValue, forKey: Keys.nightMode) }
+    }
+    
+    var showVisibility: Bool {
+        get { defaults.object(forKey: Keys.showVisibility) as? Bool ?? false }
+        set { defaults.set(newValue, forKey: Keys.showVisibility) }
     }
 }

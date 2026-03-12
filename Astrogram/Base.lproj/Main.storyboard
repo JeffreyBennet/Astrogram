@@ -63,7 +63,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="14" translatesAutoresizingMaskIntoConstraints="NO" id="2CJ-y1-sIO">
-                                <rect key="frame" x="16" y="138" width="361" height="154"/>
+                                <rect key="frame" x="16" y="138" width="361" height="196"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Filters" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qYe-iP-5RZ">
                                         <rect key="frame" x="0.0" y="0.0" width="361" height="28"/>
@@ -136,6 +136,27 @@
                                             <constraint firstAttribute="height" constant="28" id="qmC-0L-kcQ"/>
                                         </constraints>
                                     </stackView>
+                                    <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="12" translatesAutoresizingMaskIntoConstraints="NO" id="IrB-vm-2IS">
+                                        <rect key="frame" x="0.0" y="168" width="361" height="28"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Visibility Rating" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="EE6-Yl-Df9">
+                                                <rect key="frame" x="0.0" y="4" width="288" height="20.333333333333332"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gSJ-ub-Rdt">
+                                                <rect key="frame" x="300" y="0.0" width="63" height="28"/>
+                                                <connections>
+                                                    <action selector="nightChanged:" destination="2Pg-Cn-J1Q" eventType="valueChanged" id="uIW-8F-1Oj"/>
+                                                    <action selector="visibilityChanged:" destination="2Pg-Cn-J1Q" eventType="valueChanged" id="Wb7-cg-w2A"/>
+                                                </connections>
+                                            </switch>
+                                        </subviews>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="28" id="K6c-PU-RR3"/>
+                                        </constraints>
+                                    </stackView>
                                 </subviews>
                             </stackView>
                         </subviews>
@@ -151,11 +172,12 @@
                         <outlet property="cloudsSwitch" destination="Quo-Lz-0BE" id="oft-9e-pTA"/>
                         <outlet property="lightSwitch" destination="QRa-ql-UKt" id="gN8-BG-ykM"/>
                         <outlet property="nightModeSwitch" destination="2wD-Oj-3wY" id="0th-HC-SSD"/>
+                        <outlet property="visibilityRatingSwitch" destination="gSJ-ub-Rdt" id="EmE-nX-l66"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="6az-7o-yE2" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3479" y="131"/>
+            <point key="canvasLocation" x="3478.6259541984732" y="130.98591549295776"/>
         </scene>
         <!--Settings View Controller-->
         <scene sceneID="5DL-Cg-ppU">

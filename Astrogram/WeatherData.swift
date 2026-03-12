@@ -20,67 +20,62 @@ struct WeatherData {
 final class WeatherService {
     static let shared = WeatherService()
     private init() {}
-
+    
     private let apiKey = SECRET_KEY
     private var cache: [String: WeatherData] = [:]
-//    private let cachePrecision = 1
-
+    private let cacheQueue = DispatchQueue(label: "WeatherService.cache.queue")
+    
     private func cacheKey(_ coord: CLLocationCoordinate2D) -> String {
-        let lat = (coord.latitude  * 10).rounded()
-        let lon = (coord.longitude * 10).rounded()
-        return "\(lat),\(lon)"
+        let bucketSize = 0.25
+        let lat = (coord.latitude / bucketSize).rounded() * bucketSize
+        let lon = (coord.longitude / bucketSize).rounded() * bucketSize
+        return String(format: "%.2f,%.2f", lat, lon)
     }
-
+    
     func cachedData(near coord: CLLocationCoordinate2D) -> WeatherData? {
-        cache[cacheKey(coord)]
-    }
-
-    //non concurrent fetch implementation
-    //TODO: make fetch grid concurrent
-    func fetchGrid(for region: MKCoordinateRegion, steps: Int = 6) async {
-        let latStep = region.span.latitudeDelta / Double(steps)
-        let lonStep = region.span.longitudeDelta / Double(steps)
-
-        for row in 0..<steps {
-            for col in 0..<steps {
-                let lat = region.center.latitude - region.span.latitudeDelta / 2 + latStep * (Double(row) + 0.5)
-                let lon = region.center.longitude - region.span.longitudeDelta / 2 + lonStep * (Double(col) + 0.5)
-                let coord = CLLocationCoordinate2D(latitude: lat, longitude: lon)
-                let key = cacheKey(coord)
-
-                guard cache[key] == nil else { continue }
-                await fetch(coord: coord)
-            }
+        cacheQueue.sync {
+            if let w = cache[cacheKey(coord)] { return w }
+            return nil
         }
     }
 
-    //fetches api response,
-    private func fetch(coord: CLLocationCoordinate2D) async {
-        print("Fetching: \(coord.latitude), \(coord.longitude)")
+    
+     private func fetch(coord: CLLocationCoordinate2D) async {
         let urlString = "https://api.weatherapi.com/v1/current.json?key=\(apiKey)&q=\(coord.latitude),\(coord.longitude)&aqi=no"
-        guard let url = URL(string: urlString) else {   print("Bad URL"); return }
-
+        guard let url = URL(string: urlString) else { return }
+        
         do {
             let (data, _) = try await URLSession.shared.data(from: url)
-            if let raw = String(data: data, encoding: .utf8) {
-                     print("Response: \(raw.prefix(200))")
-                 }
             let json = try JSONDecoder().decode(WeatherAPIResponse.self, from: data)
             let current = json.current
-
+            
             let weather = WeatherData(
                 coordinate: coord,
                 cloudCoverFraction: Double(current.cloud) / 100.0,
-                visibilityFraction: min(current.vis_km / 10.0, 1.0),  // cap at 10km
+                visibilityFraction: min(current.vis_km / 10.0, 1.0),
                 humidityFraction: Double(current.humidity) / 100.0
             )
-
-            cache[cacheKey(coord)] = weather
+            
+            cacheQueue.sync {
+                cache[cacheKey(coord)] = weather
+            }
+            
         } catch {
-            print("WeatherService fetch error: \(error)")
+            print("fetch failed \(coord.latitude),\(coord.longitude): \(error)")
+        }
+    }
+    
+    //called by heatgridoverlay; fetch exact needed coordinates
+    func fetchCoordinates(_ coords: [CLLocationCoordinate2D]) async {
+        for coord in coords {
+            let key = cacheKey(coord)
+            let alreadyCached = cacheQueue.sync { cache[key] != nil }
+            guard !alreadyCached else { continue }
+            await fetch(coord: coord)
         }
     }
 }
+
 
 //struct format for api response, handles vis sometimes being double
 //note: api has more data in it, but this is all i feel is necessary.

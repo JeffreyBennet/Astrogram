@@ -21,17 +21,17 @@ final class VisibilityCalculator {
 
     //still currently fake noise
     func lightPollutionIndex(at coord: CLLocationCoordinate2D) -> Double {
-        let n = seededNoise(lat: coord.latitude, lon: coord.longitude, salt: 1.7)
-        return 0.15 + 0.80 * n
+//        let n = seededNoise(lat: coord.latitude, lon: coord.longitude, salt: 1.7)
+        return 0.0
     }
 
     //checks cache for hit, if none, then fake noise
     func cloudCover(at coord: CLLocationCoordinate2D) -> Double {
         if let w = WeatherService.shared.cachedData(near: coord) {
-            print("hit \(coord.latitude), \(coord.longitude)")
+//            print("hit \(coord.latitude), \(coord.longitude)")
             return w.cloudCoverFraction
         }
-        print("miss \(coord.latitude), \(coord.longitude)")
+//        print("miss \(coord.latitude), \(coord.longitude)")
         let n = seededNoise(lat: coord.latitude, lon: coord.longitude, salt: 9.3)
         return 0.05 + 0.90 * n
     }
@@ -56,7 +56,7 @@ final class VisibilityCalculator {
         case 20...39:  label = "Poor"
         default:       label = "Bad"
         }
-
+        print(isReal)
         return VisibilitySummary(
             coordinate: coord,
             lightPollutionIndex: lp,
