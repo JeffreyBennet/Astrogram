@@ -29,4 +29,4 @@ Suyog (25%)
 Differences / Deviations:
 
 • Added in Login and Sign Up pages and implemente the Firebase connection which was initially a part of Beta, so we are ahead of schedule  
-• Ideally would like to use the same tile overlay implementation for light pollution as well as visibility rating, minial change but slightly behind  
+• Ideally would like to use the same tile overlay implementation for light pollution as well as visibility rating, minimal change but slightly behind  
