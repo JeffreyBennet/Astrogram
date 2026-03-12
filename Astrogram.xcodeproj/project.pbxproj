@@ -76,8 +76,8 @@
 		ADF6619C2F5A39A500DA095B = {
 			isa = PBXGroup;
 			children = (
-				ADF661A72F5A39A500DA095B /* Astrogram */,
 				ADF661A62F5A39A500DA095B /* Products */,
+				ADF661A72F5A39A500DA095B /* Astrogram */,
 			);
 			sourceTree = "<group>";
 		};

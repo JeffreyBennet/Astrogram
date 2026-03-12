@@ -1,7 +1,7 @@
 import UIKit
 
 protocol MapFiltersDelegate: AnyObject {
-    func filtersDidChange(showLight: Bool, showClouds: Bool, nightMode: Bool)
+    func filtersDidChange(showLight: Bool, showClouds: Bool, showRain: Bool, nightMode: Bool)
 }
 
 final class MapFiltersViewController: UIViewController {
@@ -10,8 +10,9 @@ final class MapFiltersViewController: UIViewController {
 
     @IBOutlet private weak var lightSwitch: UISwitch!
     @IBOutlet private weak var cloudsSwitch: UISwitch!
-    @IBOutlet private weak var nightModeSwitch: UISwitch!
-
+    @IBOutlet weak var nightModeSwitch: UISwitch!
+    @IBOutlet weak var precipitationSwitch: UISwitch!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         loadFromSettings()
@@ -21,6 +22,7 @@ final class MapFiltersViewController: UIViewController {
         let s = AppSettings.shared
         lightSwitch.isOn = s.showLightLayer
         cloudsSwitch.isOn = s.showCloudLayer
+        precipitationSwitch.isOn = s.showRainLayer
         nightModeSwitch.isOn = s.nightMode
     }
 
@@ -28,6 +30,7 @@ final class MapFiltersViewController: UIViewController {
         delegate?.filtersDidChange(
             showLight: lightSwitch.isOn,
             showClouds: cloudsSwitch.isOn,
+            showRain: precipitationSwitch.isOn,
             nightMode: nightModeSwitch.isOn
         )
     }
@@ -41,6 +44,10 @@ final class MapFiltersViewController: UIViewController {
     }
 
     @IBAction private func nightChanged(_ sender: UISwitch) {
+        notifyDelegate()
+    }
+    
+    @IBAction func precipitationChanged(_ sender: UISwitch) {
         notifyDelegate()
     }
 }
