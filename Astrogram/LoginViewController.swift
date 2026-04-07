@@ -47,9 +47,9 @@ final class LoginViewController: UIViewController {
     }
     
     private func goToTabBar() {
-        if let tabBarVC = storyboard?.instantiateViewController(withIdentifier: tabBarControllerID) {
-            tabBarVC.modalPresentationStyle = .fullScreen
-            present(tabBarVC, animated: true)
-        }
+        guard let sceneDelegate = view.window?.windowScene?.delegate as? SceneDelegate else { return }
+        let tabBarVC = sceneDelegate.makeTabBarController()
+        tabBarVC.modalPresentationStyle = .fullScreen
+        present(tabBarVC, animated: true)
     }
 }

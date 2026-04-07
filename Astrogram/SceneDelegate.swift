@@ -17,12 +17,38 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
 
         if Auth.auth().currentUser != nil {
-            let storyboard = UIStoryboard(name: "Main", bundle: nil)
-            let tabBarVC = storyboard.instantiateViewController(withIdentifier: "TabViewController")
+            let tabBarVC = makeTabBarController()
             window = UIWindow(windowScene: windowScene)
             window?.rootViewController = tabBarVC
             window?.makeKeyAndVisible()
         }
+    }
+
+    func makeTabBarController() -> UITabBarController {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let tabBarVC = storyboard.instantiateViewController(withIdentifier: "TabViewController") as! UITabBarController
+
+        // Map tab (already connected in storyboard)
+        // We rebuild the full viewControllers list to include new tabs
+
+        let mapNav = storyboard.instantiateViewController(withIdentifier: "MapNavigationController")
+
+        // Feed tab
+        let feedVC = FeedViewController()
+        let feedNav = UINavigationController(rootViewController: feedVC)
+        feedNav.tabBarItem = UITabBarItem(title: "Feed", image: UIImage(systemName: "photo.on.rectangle.angled"), tag: 1)
+
+        // Post tab
+        let postVC = PostPhotoViewController()
+        let postNav = UINavigationController(rootViewController: postVC)
+        postNav.tabBarItem = UITabBarItem(title: "Post", image: UIImage(systemName: "plus.circle.fill"), tag: 2)
+
+        // Settings tab
+        let settingsVC = storyboard.instantiateViewController(withIdentifier: "SettingsNavigationController")
+
+        tabBarVC.viewControllers = [feedNav, mapNav, postNav, settingsVC]
+
+        return tabBarVC
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
