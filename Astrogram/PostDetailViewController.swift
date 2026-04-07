@@ -13,6 +13,9 @@ final class PostDetailViewController: UIViewController {
     private let imageView = UIImageView()
     private let contentStack = UIStackView()
     private let closeButton = UIButton(type: .system)
+    private let starButton = UIButton(type: .system)
+    private let starCountLabel = UILabel()
+    private var isStarred = false
     private let activityIndicator = UIActivityIndicatorView(style: .large)
 
     private var isOwner: Bool {
@@ -26,6 +29,7 @@ final class PostDetailViewController: UIViewController {
         view.backgroundColor = .black
         setupUI()
         populateData()
+        checkStarStatus()
     }
 
     override var prefersStatusBarHidden: Bool { true }
@@ -126,6 +130,27 @@ final class PostDetailViewController: UIViewController {
                 editButton.heightAnchor.constraint(equalToConstant: 36)
             ])
         }
+
+        // Star button (bottom-left overlay)
+        starButton.translatesAutoresizingMaskIntoConstraints = false
+        starButton.addTarget(self, action: #selector(starTapped), for: .touchUpInside)
+        view.addSubview(starButton)
+
+        starCountLabel.translatesAutoresizingMaskIntoConstraints = false
+        starCountLabel.font = .systemFont(ofSize: 15, weight: .semibold)
+        starCountLabel.textColor = .white
+        view.addSubview(starCountLabel)
+
+        NSLayoutConstraint.activate([
+            starButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            starButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
+            starButton.widthAnchor.constraint(equalToConstant: 44),
+            starButton.heightAnchor.constraint(equalToConstant: 44),
+            starCountLabel.centerYAnchor.constraint(equalTo: starButton.centerYAnchor),
+            starCountLabel.leadingAnchor.constraint(equalTo: starButton.trailingAnchor, constant: 4)
+        ])
+
+        updateStarAppearance()
 
         // Activity indicator
         activityIndicator.hidesWhenStopped = true
@@ -269,6 +294,46 @@ final class PostDetailViewController: UIViewController {
         return row
     }
 
+    // MARK: - Star
+
+    private func checkStarStatus() {
+        guard let postId = post.id, let uid = Auth.auth().currentUser?.uid else { return }
+        FirebasePostService.shared.isStarred(postId: postId, userId: uid) { [weak self] starred in
+            DispatchQueue.main.async {
+                self?.isStarred = starred
+                self?.updateStarAppearance()
+            }
+        }
+    }
+
+    private func updateStarAppearance() {
+        let iconName = isStarred ? "star.fill" : "star"
+        let config = UIImage.SymbolConfiguration(pointSize: 24, weight: .medium)
+        starButton.setImage(UIImage(systemName: iconName, withConfiguration: config), for: .normal)
+        starButton.tintColor = isStarred ? .systemYellow : .white
+        starCountLabel.text = post.starCount > 0 ? "\(post.starCount)" : ""
+    }
+
+    @objc private func starTapped() {
+        guard let postId = post.id, let uid = Auth.auth().currentUser?.uid else { return }
+        starButton.isEnabled = false
+
+        FirebasePostService.shared.toggleStar(postId: postId, userId: uid) { [weak self] result in
+            DispatchQueue.main.async {
+                self?.starButton.isEnabled = true
+                switch result {
+                case .success(let nowStarred):
+                    self?.isStarred = nowStarred
+                    self?.post.starCount += nowStarred ? 1 : -1
+                    self?.updateStarAppearance()
+                    self?.onPostUpdated?()
+                case .failure:
+                    break
+                }
+            }
+        }
+    }
+
     // MARK: - Actions
 
     @objc private func closeTapped() {
@@ -294,7 +359,8 @@ final class PostDetailViewController: UIViewController {
     // MARK: - Edit
 
     private func showEditScreen() {
-        let editVC = EditPostViewController()
+        let sb = UIStoryboard(name: "Main", bundle: nil)
+        guard let editVC = sb.instantiateViewController(withIdentifier: "EditPostViewController") as? EditPostViewController else { return }
         editVC.post = post
         editVC.onSave = { [weak self] updatedFields in
             self?.saveEdits(updatedFields)
@@ -331,7 +397,8 @@ final class PostDetailViewController: UIViewController {
                             locationName: fields["locationName"] as? String ?? self.post.locationName,
                             latitude: self.post.latitude,
                             longitude: self.post.longitude,
-                            timestamp: self.post.timestamp
+                            timestamp: self.post.timestamp,
+                            starCount: self.post.starCount
                         )
                         self.onPostUpdated?()
                         self.rebuildMetadata()

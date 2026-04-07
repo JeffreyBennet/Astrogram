@@ -17,6 +17,7 @@ struct AstroPost {
     let latitude: Double?
     let longitude: Double?
     let timestamp: Date
+    var starCount: Int
 
     var dictionary: [String: Any] {
         var dict: [String: Any] = [
@@ -33,6 +34,7 @@ struct AstroPost {
             "locationName": locationName,
             "timestamp": Timestamp(date: timestamp)
         ]
+        dict["starCount"] = starCount
         if let lat = latitude { dict["latitude"] = lat }
         if let lon = longitude { dict["longitude"] = lon }
         return dict
@@ -63,7 +65,8 @@ struct AstroPost {
             locationName: data["locationName"] as? String ?? "",
             latitude: data["latitude"] as? Double,
             longitude: data["longitude"] as? Double,
-            timestamp: ts.dateValue()
+            timestamp: ts.dateValue(),
+            starCount: data["starCount"] as? Int ?? 0
         )
     }
 }

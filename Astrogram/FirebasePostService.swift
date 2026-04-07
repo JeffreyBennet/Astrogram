@@ -168,6 +168,50 @@ final class FirebasePostService {
         }
     }
 
+    // MARK: - Stars
+
+    func toggleStar(postId: String, userId: String, completion: @escaping (Result<Bool, Error>) -> Void) {
+        let starRef = db.collection(postsCollection).document(postId).collection("stars").document(userId)
+        let postRef = db.collection(postsCollection).document(postId)
+
+        starRef.getDocument { snapshot, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+
+            if snapshot?.exists == true {
+                // Unstar
+                starRef.delete { error in
+                    if let error = error {
+                        completion(.failure(error))
+                        return
+                    }
+                    postRef.updateData(["starCount": FieldValue.increment(Int64(-1))]) { _ in
+                        completion(.success(false))
+                    }
+                }
+            } else {
+                // Star
+                starRef.setData(["timestamp": FieldValue.serverTimestamp()]) { error in
+                    if let error = error {
+                        completion(.failure(error))
+                        return
+                    }
+                    postRef.updateData(["starCount": FieldValue.increment(Int64(1))]) { _ in
+                        completion(.success(true))
+                    }
+                }
+            }
+        }
+    }
+
+    func isStarred(postId: String, userId: String, completion: @escaping (Bool) -> Void) {
+        db.collection(postsCollection).document(postId).collection("stars").document(userId).getDocument { snapshot, _ in
+            completion(snapshot?.exists == true)
+        }
+    }
+
     // MARK: - Fetch distinct camera values for filter options
 
     func fetchCameraOptions(completion: @escaping ([String]) -> Void) {

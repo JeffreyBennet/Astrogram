@@ -125,7 +125,8 @@ final class FeedViewController: UIViewController {
     // MARK: - Actions
 
     @objc private func filterTapped() {
-        let filterVC = FeedFilterViewController()
+        let sb = UIStoryboard(name: "Main", bundle: nil)
+        guard let filterVC = sb.instantiateViewController(withIdentifier: "FeedFilterViewController") as? FeedFilterViewController else { return }
         filterVC.currentFilter = currentFilter
         filterVC.delegate = self
         filterVC.modalPresentationStyle = .pageSheet
@@ -191,7 +192,8 @@ extension FeedViewController: UICollectionViewDataSource, UICollectionViewDelega
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let post = posts[indexPath.item]
-        let detailVC = PostDetailViewController()
+        let sb = UIStoryboard(name: "Main", bundle: nil)
+        guard let detailVC = sb.instantiateViewController(withIdentifier: "PostDetailViewController") as? PostDetailViewController else { return }
         detailVC.post = post
 
         // Pass cached image if available

@@ -282,7 +282,8 @@ final class PostPhotoViewController: UIViewController {
             locationName: locationField.text?.trimmingCharacters(in: .whitespaces) ?? "",
             latitude: nil,
             longitude: nil,
-            timestamp: Date()
+            timestamp: Date(),
+            starCount: 0
         )
 
         FirebasePostService.shared.createPost(post) { [weak self] result in
