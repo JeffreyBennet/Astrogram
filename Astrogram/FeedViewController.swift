@@ -3,14 +3,17 @@ import FirebaseAuth
 
 final class FeedViewController: UIViewController {
 
+    // MARK: - IBOutlets
+
+    @IBOutlet weak var collectionView: UICollectionView!
+    @IBOutlet weak var emptyLabel: UILabel!
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+
     // MARK: - Properties
 
-    private var collectionView: UICollectionView!
     private let refreshControl = UIRefreshControl()
     private var posts: [AstroPost] = []
     private var currentFilter = FeedFilter()
-    private let emptyLabel = UILabel()
-    private let activityIndicator = UIActivityIndicatorView(style: .large)
     private var imageCache = NSCache<NSString, UIImage>()
 
     // MARK: - Lifecycle
@@ -18,78 +21,16 @@ final class FeedViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Feed"
-        view.backgroundColor = .systemBackground
-        setupNavBar()
-        setupCollectionView()
-        setupEmptyState()
-        setupActivityIndicator()
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        collectionView.register(FeedPhotoCell.self, forCellWithReuseIdentifier: FeedPhotoCell.reuseID)
+        refreshControl.addTarget(self, action: #selector(refreshPulled), for: .valueChanged)
+        collectionView.refreshControl = refreshControl
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         loadPosts()
-    }
-
-    // MARK: - Setup
-
-    private func setupNavBar() {
-        let filterButton = UIBarButtonItem(
-            image: UIImage(systemName: "line.3.horizontal.decrease.circle"),
-            style: .plain,
-            target: self,
-            action: #selector(filterTapped)
-        )
-        navigationItem.rightBarButtonItem = filterButton
-    }
-
-    private func setupCollectionView() {
-        let layout = UICollectionViewFlowLayout()
-        layout.minimumInteritemSpacing = 1
-        layout.minimumLineSpacing = 1
-
-        collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.backgroundColor = .systemBackground
-        collectionView.delegate = self
-        collectionView.dataSource = self
-        collectionView.register(FeedPhotoCell.self, forCellWithReuseIdentifier: FeedPhotoCell.reuseID)
-        collectionView.refreshControl = refreshControl
-        refreshControl.addTarget(self, action: #selector(refreshPulled), for: .valueChanged)
-
-        view.addSubview(collectionView)
-        NSLayoutConstraint.activate([
-            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        ])
-    }
-
-    private func setupEmptyState() {
-        emptyLabel.text = "No posts yet.\nBe the first to share an astrophoto!"
-        emptyLabel.textColor = .secondaryLabel
-        emptyLabel.textAlignment = .center
-        emptyLabel.numberOfLines = 0
-        emptyLabel.font = .systemFont(ofSize: 16)
-        emptyLabel.translatesAutoresizingMaskIntoConstraints = false
-        emptyLabel.isHidden = true
-        view.addSubview(emptyLabel)
-        NSLayoutConstraint.activate([
-            emptyLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            emptyLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            emptyLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
-            emptyLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40)
-        ])
-    }
-
-    private func setupActivityIndicator() {
-        activityIndicator.hidesWhenStopped = true
-        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(activityIndicator)
-        NSLayoutConstraint.activate([
-            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
-        ])
     }
 
     // MARK: - Data Loading
@@ -124,7 +65,7 @@ final class FeedViewController: UIViewController {
 
     // MARK: - Actions
 
-    @objc private func filterTapped() {
+    @IBAction func filterTapped(_ sender: Any) {
         let sb = UIStoryboard(name: "Main", bundle: nil)
         guard let filterVC = sb.instantiateViewController(withIdentifier: "FeedFilterViewController") as? FeedFilterViewController else { return }
         filterVC.currentFilter = currentFilter
@@ -186,7 +127,7 @@ extension FeedViewController: UICollectionViewDataSource, UICollectionViewDelega
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let width = (collectionView.bounds.width - 2) / 3 // 3 columns, 1pt spacing
+        let width = (collectionView.bounds.width - 2) / 3
         return CGSize(width: width, height: width)
     }
 
@@ -196,7 +137,6 @@ extension FeedViewController: UICollectionViewDataSource, UICollectionViewDelega
         guard let detailVC = sb.instantiateViewController(withIdentifier: "PostDetailViewController") as? PostDetailViewController else { return }
         detailVC.post = post
 
-        // Pass cached image if available
         let cacheKey = NSString(string: post.imageURL)
         detailVC.cachedImage = imageCache.object(forKey: cacheKey)
 

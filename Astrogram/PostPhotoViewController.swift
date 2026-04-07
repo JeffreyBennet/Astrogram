@@ -3,23 +3,20 @@ import FirebaseAuth
 
 final class PostPhotoViewController: UIViewController {
 
-    // MARK: - UI Elements
+    // MARK: - IBOutlets
 
-    private let scrollView = UIScrollView()
-    private let contentStack = UIStackView()
-
-    private let imageView = UIImageView()
-    private let selectPhotoButton = UIButton(type: .system)
-    private let titleField = UITextField()
-    private let descriptionField = UITextView()
-    private let cameraField = UITextField()
-    private let isoField = UITextField()
-    private let exposureField = UITextField()
-    private let focalLengthField = UITextField()
-    private let locationField = UITextField()
-    private let postButton = UIButton(type: .system)
-    private let statusLabel = UILabel()
-    private let activityIndicator = UIActivityIndicatorView(style: .large)
+    @IBOutlet weak var imageView: UIImageView!
+    @IBOutlet weak var selectPhotoButton: UIButton!
+    @IBOutlet weak var titleField: UITextField!
+    @IBOutlet weak var descriptionField: UITextView!
+    @IBOutlet weak var cameraField: UITextField!
+    @IBOutlet weak var isoField: UITextField!
+    @IBOutlet weak var exposureField: UITextField!
+    @IBOutlet weak var focalLengthField: UITextField!
+    @IBOutlet weak var locationField: UITextField!
+    @IBOutlet weak var statusLabel: UILabel!
+    @IBOutlet weak var postButton: UIButton!
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
 
     private var selectedImage: UIImage?
 
@@ -28,180 +25,19 @@ final class PostPhotoViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "New Post"
-        view.backgroundColor = .systemBackground
-        setupUI()
-        setupKeyboardDismiss()
-    }
-
-    // MARK: - UI Setup
-
-    private func setupUI() {
-        // Scroll view
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.alwaysBounceVertical = true
-        view.addSubview(scrollView)
-
-        NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        ])
-
-        // Content stack
-        contentStack.axis = .vertical
-        contentStack.spacing = 16
-        contentStack.alignment = .fill
-        contentStack.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.addSubview(contentStack)
-
-        NSLayoutConstraint.activate([
-            contentStack.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor, constant: 16),
-            contentStack.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor, constant: 20),
-            contentStack.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor, constant: -20),
-            contentStack.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor, constant: -20),
-            contentStack.widthAnchor.constraint(equalTo: scrollView.frameLayoutGuide.widthAnchor, constant: -40)
-        ])
-
-        // Image preview
-        imageView.contentMode = .scaleAspectFill
-        imageView.clipsToBounds = true
-        imageView.layer.cornerRadius = 12
-        imageView.backgroundColor = .secondarySystemBackground
-        imageView.heightAnchor.constraint(equalToConstant: 250).isActive = true
-
-        let placeholderLabel = UILabel()
-        placeholderLabel.text = "Tap to select a photo"
-        placeholderLabel.textColor = .tertiaryLabel
-        placeholderLabel.textAlignment = .center
-        placeholderLabel.tag = 999
-        placeholderLabel.translatesAutoresizingMaskIntoConstraints = false
-        imageView.addSubview(placeholderLabel)
-        NSLayoutConstraint.activate([
-            placeholderLabel.centerXAnchor.constraint(equalTo: imageView.centerXAnchor),
-            placeholderLabel.centerYAnchor.constraint(equalTo: imageView.centerYAnchor)
-        ])
-
-        let imageTap = UITapGestureRecognizer(target: self, action: #selector(selectPhotoTapped))
-        imageView.isUserInteractionEnabled = true
-        imageView.addGestureRecognizer(imageTap)
-
-        contentStack.addArrangedSubview(imageView)
-
-        // Select photo button
-        var selectConfig = UIButton.Configuration.tinted()
-        selectConfig.title = "Choose Photo"
-        selectConfig.image = UIImage(systemName: "photo.on.rectangle")
-        selectConfig.imagePadding = 8
-        selectPhotoButton.configuration = selectConfig
-        selectPhotoButton.addTarget(self, action: #selector(selectPhotoTapped), for: .touchUpInside)
-        contentStack.addArrangedSubview(selectPhotoButton)
-
-        // Section: Details
-        contentStack.addArrangedSubview(makeSectionLabel("Details"))
-
-        // Title
-        styleTextField(titleField, placeholder: "Title *")
-        contentStack.addArrangedSubview(titleField)
-
-        // Description
-        descriptionField.font = .systemFont(ofSize: 16)
         descriptionField.layer.borderColor = UIColor.separator.cgColor
         descriptionField.layer.borderWidth = 1
         descriptionField.layer.cornerRadius = 8
-        descriptionField.textContainerInset = UIEdgeInsets(top: 10, left: 8, bottom: 10, right: 8)
-        descriptionField.heightAnchor.constraint(greaterThanOrEqualToConstant: 80).isActive = true
-        descriptionField.backgroundColor = .secondarySystemBackground
-        contentStack.addArrangedSubview(descriptionField)
+        imageView.layer.cornerRadius = 12
 
-        let descHint = UILabel()
-        descHint.text = "Description"
-        descHint.font = .systemFont(ofSize: 12)
-        descHint.textColor = .secondaryLabel
-        contentStack.addArrangedSubview(descHint)
-
-        // Section: Camera Settings
-        contentStack.addArrangedSubview(makeSectionLabel("Camera Settings"))
-
-        let cameraRow = UIStackView()
-        cameraRow.axis = .horizontal
-        cameraRow.spacing = 12
-        cameraRow.distribution = .fillEqually
-
-        styleTextField(cameraField, placeholder: "Camera (e.g. Canon EOS R5)")
-        contentStack.addArrangedSubview(cameraField)
-
-        let settingsRow = UIStackView()
-        settingsRow.axis = .horizontal
-        settingsRow.spacing = 12
-        settingsRow.distribution = .fillEqually
-        styleTextField(isoField, placeholder: "ISO")
-        isoField.keyboardType = .numberPad
-        styleTextField(exposureField, placeholder: "Exposure (e.g. 30s)")
-        styleTextField(focalLengthField, placeholder: "Focal Length")
-        settingsRow.addArrangedSubview(isoField)
-        settingsRow.addArrangedSubview(exposureField)
-        settingsRow.addArrangedSubview(focalLengthField)
-        contentStack.addArrangedSubview(settingsRow)
-
-        // Section: Location
-        contentStack.addArrangedSubview(makeSectionLabel("Location"))
-        styleTextField(locationField, placeholder: "Location name (e.g. Big Bend National Park)")
-        contentStack.addArrangedSubview(locationField)
-
-        // Status label
-        statusLabel.textColor = .systemRed
-        statusLabel.font = .systemFont(ofSize: 14)
-        statusLabel.numberOfLines = 0
-        statusLabel.textAlignment = .center
-        statusLabel.text = ""
-        contentStack.addArrangedSubview(statusLabel)
-
-        // Post button
-        var postConfig = UIButton.Configuration.filled()
-        postConfig.title = "Post"
-        postConfig.cornerStyle = .large
-        postConfig.baseBackgroundColor = .systemIndigo
-        postButton.configuration = postConfig
-        postButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        postButton.addTarget(self, action: #selector(postTapped), for: .touchUpInside)
-        contentStack.addArrangedSubview(postButton)
-
-        // Activity indicator
-        activityIndicator.hidesWhenStopped = true
-        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(activityIndicator)
-        NSLayoutConstraint.activate([
-            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
-        ])
-    }
-
-    private func makeSectionLabel(_ text: String) -> UILabel {
-        let label = UILabel()
-        label.text = text
-        label.font = .systemFont(ofSize: 18, weight: .semibold)
-        label.textColor = .label
-        return label
-    }
-
-    private func styleTextField(_ field: UITextField, placeholder: String) {
-        field.placeholder = placeholder
-        field.borderStyle = .roundedRect
-        field.font = .systemFont(ofSize: 16)
-        field.backgroundColor = .secondarySystemBackground
-        field.heightAnchor.constraint(equalToConstant: 44).isActive = true
-    }
-
-    private func setupKeyboardDismiss() {
         let tap = UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing))
         tap.cancelsTouchesInView = false
         view.addGestureRecognizer(tap)
     }
 
-    // MARK: - Actions
+    // MARK: - IBActions
 
-    @objc private func selectPhotoTapped() {
+    @IBAction func selectPhotoTapped(_ sender: Any) {
         let alert = UIAlertController(title: "Select Photo", message: nil, preferredStyle: .actionSheet)
 
         if UIImagePickerController.isSourceTypeAvailable(.camera) {
@@ -231,7 +67,7 @@ final class PostPhotoViewController: UIViewController {
         present(picker, animated: true)
     }
 
-    @objc private func postTapped() {
+    @IBAction func postTapped(_ sender: Any) {
         view.endEditing(true)
 
         guard let image = selectedImage else {
@@ -303,7 +139,6 @@ final class PostPhotoViewController: UIViewController {
         let alert = UIAlertController(title: "Posted!", message: "Your astrophoto has been shared.", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default) { _ in
             self.resetForm()
-            // Switch to feed tab
             self.tabBarController?.selectedIndex = 0
         })
         present(alert, animated: true)
@@ -312,7 +147,6 @@ final class PostPhotoViewController: UIViewController {
     private func resetForm() {
         selectedImage = nil
         imageView.image = nil
-        imageView.viewWithTag(999)?.isHidden = false
         titleField.text = ""
         descriptionField.text = ""
         cameraField.text = ""
@@ -328,10 +162,8 @@ final class PostPhotoViewController: UIViewController {
         selectPhotoButton.isEnabled = !posting
         if posting {
             activityIndicator.startAnimating()
-            postButton.configuration?.title = "Uploading..."
         } else {
             activityIndicator.stopAnimating()
-            postButton.configuration?.title = "Post"
         }
     }
 }
@@ -346,7 +178,6 @@ extension PostPhotoViewController: UIImagePickerControllerDelegate, UINavigation
         if let image = info[.originalImage] as? UIImage {
             selectedImage = image
             imageView.image = image
-            imageView.viewWithTag(999)?.isHidden = true
         }
     }
 
