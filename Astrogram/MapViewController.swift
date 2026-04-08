@@ -6,7 +6,8 @@ final class MapViewController: UIViewController {
 
     @IBOutlet private weak var mapView: MKMapView!
     @IBOutlet weak var filtersButton: UIBarButtonItem!
-
+    @IBOutlet weak var nightmodeButton: UIBarButtonItem!
+    
     private let locationManager = CLLocationManager()
     private let calculator = VisibilityCalculator()
 
@@ -20,8 +21,6 @@ final class MapViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        title = "Astrogram"
 
         mapView.delegate = self
         mapView.showsCompass = true
@@ -233,20 +232,34 @@ final class MapViewController: UIViewController {
 
         present(vc, animated: true)
     }
+    
+    // Night mode button pressed
+    @IBAction func nightModeButtonTapped(_ sender: Any) {
+        let settings = AppSettings.shared
+        settings.nightMode.toggle()
+        applyNightModeIfNeeded()
+        updateNightModeButtonIcon()
+    }
+    
+    private func updateNightModeButtonIcon() {
+        if AppSettings.shared.nightMode {
+            nightmodeButton.image = UIImage(systemName: "sun.max.fill")
+        } else {
+            nightmodeButton.image = UIImage(systemName: "moon.stars.fill")
+        }
+    }
 }
 
 // MARK: - Filters Delegate
 extension MapViewController: MapFiltersDelegate {
 
-    func filtersDidChange(showLight: Bool, showClouds: Bool, showRain: Bool, nightMode: Bool, showVisibility: Bool) {
+    func filtersDidChange(showLight: Bool, showClouds: Bool, showRain: Bool, showVisibility: Bool) {
         let s = AppSettings.shared
         s.showLightLayer = showLight
         s.showCloudLayer = showClouds
         s.showRainLayer = showRain
-        s.nightMode = nightMode
         s.showVisibility = showVisibility
 
-        applyNightModeIfNeeded()
         refreshOverlays()
     }
 }
@@ -257,7 +270,7 @@ extension MapViewController: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
         if let tileOverlay = overlay as? MKTileOverlay {
             let renderer = MKTileOverlayRenderer(tileOverlay: tileOverlay)
-            renderer.alpha = 0.75
+            renderer.alpha = 0.85
             return renderer
         }
 
