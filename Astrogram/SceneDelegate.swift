@@ -21,6 +21,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             let tabBarVC = storyboard.instantiateViewController(withIdentifier: "TabViewController")
             window = UIWindow(windowScene: windowScene)
             window?.rootViewController = tabBarVC
+            window?.overrideUserInterfaceStyle = AppSettings.shared.nightMode ? .dark : .light
             window?.makeKeyAndVisible()
         }
     }

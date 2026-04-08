@@ -29,6 +29,7 @@ final class MapViewController: UIViewController {
         mapView.showsUserLocation = true
 
         configureLocation()
+        applyStartupLayer()
         applyNightModeIfNeeded()
         addTapGesture()
 
@@ -67,10 +68,30 @@ final class MapViewController: UIViewController {
         mapView.setRegion(region, animated: false)
     }
 
+    private func applyStartupLayer() {
+        let s = AppSettings.shared
+        switch s.startupLayer {
+        case .none:
+            break
+        case .light:
+            s.showLightLayer = true
+        case .clouds:
+            s.showCloudLayer = true
+        case .visibility:
+            s.showVisibility = true
+        }
+    }
+
     private func applyNightModeIfNeeded() {
-        overrideUserInterfaceStyle = .dark
-        mapView.overrideUserInterfaceStyle = .dark
-        mapView.mapType = .mutedStandard
+        if AppSettings.shared.nightMode {
+            overrideUserInterfaceStyle = .dark
+            mapView.overrideUserInterfaceStyle = .dark
+            mapView.mapType = .mutedStandard
+        } else {
+            overrideUserInterfaceStyle = .light
+            mapView.overrideUserInterfaceStyle = .light
+            mapView.mapType = .standard
+        }
     }
 
     private func refreshOverlays() {
