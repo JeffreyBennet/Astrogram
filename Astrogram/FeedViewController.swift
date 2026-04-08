@@ -1,6 +1,8 @@
 import UIKit
 import FirebaseAuth
 
+
+
 final class FeedViewController: UIViewController {
 
     // MARK: - IBOutlets
@@ -40,7 +42,9 @@ final class FeedViewController: UIViewController {
             activityIndicator.startAnimating()
         }
 
-        FirebasePostService.shared.fetchPosts(filter: currentFilter) { [weak self] result in
+        var filter = currentFilter
+        filter.excludeUserId = Auth.auth().currentUser?.uid
+        FirebasePostService.shared.fetchPosts(filter: filter) { [weak self] result in
             DispatchQueue.main.async {
                 self?.activityIndicator.stopAnimating()
                 self?.refreshControl.endRefreshing()
@@ -132,19 +136,15 @@ extension FeedViewController: UICollectionViewDataSource, UICollectionViewDelega
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let post = posts[indexPath.item]
-        let sb = UIStoryboard(name: "Main", bundle: nil)
-        guard let detailVC = sb.instantiateViewController(withIdentifier: "PostDetailViewController") as? PostDetailViewController else { return }
-        detailVC.post = post
-
-        let cacheKey = NSString(string: post.imageURL)
-        detailVC.cachedImage = imageCache.object(forKey: cacheKey)
-
-        detailVC.onPostUpdated = { [weak self] in
+        let scrollVC = FeedScrollViewController()
+        scrollVC.posts = posts
+        scrollVC.startIndex = indexPath.item
+        scrollVC.imageCache = imageCache
+        scrollVC.onPostUpdated = { [weak self] in
             self?.loadPosts()
         }
-        detailVC.modalPresentationStyle = .fullScreen
-        present(detailVC, animated: true)
+        scrollVC.modalPresentationStyle = .fullScreen
+        present(scrollVC, animated: true)
     }
 }
 
