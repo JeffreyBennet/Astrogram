@@ -151,7 +151,7 @@ final class PostPhotoViewController: UIViewController {
         let alert = UIAlertController(title: "Posted!", message: "Your astrophoto has been shared.", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default) { _ in
             self.resetForm()
-            self.tabBarController?.selectedIndex = 0
+            self.tabBarController?.selectedIndex = 3
         })
         present(alert, animated: true)
     }

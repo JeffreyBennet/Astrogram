@@ -207,47 +207,37 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" translatesAutoresizingMaskIntoConstraints="NO" id="sPr-aB-c2D">
-                                <rect key="frame" x="0.0" y="0.0" width="440" height="884"/>
+                                <rect key="frame" x="0.0" y="74" width="440" height="810"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="14" translatesAutoresizingMaskIntoConstraints="NO" id="sPk-eF-g3H">
-                                        <rect key="frame" x="20" y="16" width="400" height="800"/>
+                                        <rect key="frame" x="20" y="16" width="400" height="619.33333333333337"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="sEm-aB-c3D">
-                                                <rect key="frame" x="0.0" y="0.0" width="400" height="20"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="400" height="50"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                 <color key="textColor" systemColor="secondaryLabelColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="My Posts" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="sLm-iJ-k4L">
-                                                <rect key="frame" x="0.0" y="34" width="400" height="24"/>
-                                                <fontDescription key="fontDescription" type="system" weight="bold" pointSize="20"/>
+                                                <rect key="frame" x="0.0" y="64" width="400" height="24"/>
+                                                <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
-                                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="sCv-mN-o5P">
-                                                <rect key="frame" x="0.0" y="38" width="400" height="300"/>
-                                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                                <constraints>
-                                                    <constraint firstAttribute="height" constant="300" id="sCh-qR-s6T"/>
-                                                </constraints>
-                                                <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="1" minimumInteritemSpacing="1" id="sFl-uV-w7X">
-                                                    <size key="itemSize" width="130" height="130"/>
-                                                </collectionViewFlowLayout>
-                                            </collectionView>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Settings" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="sLs-yZ-a8B">
-                                                <rect key="frame" x="0.0" y="352" width="400" height="24"/>
-                                                <fontDescription key="fontDescription" type="system" weight="bold" pointSize="20"/>
+                                                <rect key="frame" x="0.0" y="102" width="400" height="24"/>
+                                                <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Startup Layer" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="SrF-nb-afx">
-                                                <rect key="frame" x="0.0" y="390" width="400" height="20"/>
+                                                <rect key="frame" x="0.0" y="140" width="400" height="20.333333333333371"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="J2Q-D5-f7J">
-                                                <rect key="frame" x="0.0" y="424" width="400" height="32"/>
+                                                <rect key="frame" x="0.0" y="174.33333333333331" width="400" height="32"/>
                                                 <segments>
                                                     <segment title="None"/>
                                                     <segment title="Light Pollution"/>
@@ -258,24 +248,37 @@
                                                 </connections>
                                             </segmentedControl>
                                             <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="12" translatesAutoresizingMaskIntoConstraints="NO" id="WZ5-WM-xmy">
-                                                <rect key="frame" x="0.0" y="470" width="400" height="31"/>
+                                                <rect key="frame" x="0.0" y="219.33333333333331" width="400" height="28"/>
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Night Mode" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="q17-Mf-rkn">
-                                                        <rect key="frame" x="0.0" y="2" width="327" height="28"/>
+                                                        <rect key="frame" x="0.0" y="4" width="327" height="20.333333333333332"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="FhZ-tL-Heb">
-                                                        <rect key="frame" x="339" y="0.0" width="63" height="31"/>
+                                                        <rect key="frame" x="339" y="0.0" width="63" height="28"/>
                                                         <connections>
                                                             <action selector="nightModeChanged:" destination="oPI-5W-FL8" eventType="valueChanged" id="45B-f5-IOO"/>
                                                         </connections>
                                                     </switch>
                                                 </subviews>
                                             </stackView>
+                                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="sCv-mN-o5P">
+                                                <rect key="frame" x="0.0" y="261.33333333333331" width="400" height="299.99999999999994"/>
+                                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="300" id="sCh-qR-s6T"/>
+                                                </constraints>
+                                                <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="1" minimumInteritemSpacing="1" id="sFl-uV-w7X">
+                                                    <size key="itemSize" width="130" height="130"/>
+                                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                                </collectionViewFlowLayout>
+                                            </collectionView>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sLo-cD-e9F">
-                                                <rect key="frame" x="0.0" y="515" width="400" height="44"/>
+                                                <rect key="frame" x="0.0" y="575.33333333333337" width="400" height="44"/>
                                                 <color key="backgroundColor" systemColor="systemRedColor"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="44" id="sLh-gH-i0J"/>
@@ -310,11 +313,11 @@
                     </view>
                     <navigationItem key="navigationItem" id="ANi-SM-JRM"/>
                     <connections>
+                        <outlet property="collectionHeightConstraint" destination="sCh-qR-s6T" id="so3-qQ-rR9"/>
+                        <outlet property="emailLabel" destination="sEm-aB-c3D" id="so2-oO-pP8"/>
+                        <outlet property="myPostsCollectionView" destination="sCv-mN-o5P" id="so1-mM-nN7"/>
                         <outlet property="nightModeSwitch" destination="FhZ-tL-Heb" id="54L-JR-4LO"/>
                         <outlet property="startupSegment" destination="J2Q-D5-f7J" id="oTD-5n-L10"/>
-                        <outlet property="myPostsCollectionView" destination="sCv-mN-o5P" id="so1-mM-nN7"/>
-                        <outlet property="emailLabel" destination="sEm-aB-c3D" id="so2-oO-pP8"/>
-                        <outlet property="collectionHeightConstraint" destination="sCh-qR-s6T" id="so3-qQ-rR9"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="kZ3-8E-K7F" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -605,9 +608,9 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="activityIndicator" destination="fAi-mN-o5P" id="fo3-iJ-k4L"/>
                         <outlet property="collectionView" destination="fCv-aB-c2D" id="fo1-aB-c2D"/>
                         <outlet property="emptyLabel" destination="fEm-iJ-k4L" id="fo2-eF-g3H"/>
-                        <outlet property="activityIndicator" destination="fAi-mN-o5P" id="fo3-iJ-k4L"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="FDv-fr-001" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -779,23 +782,23 @@
                     </view>
                     <navigationItem key="navigationItem" id="PPv-ni-001"/>
                     <connections>
-                        <outlet property="imageView" destination="pIv-iJ-k4L" id="po1-aB-c2D"/>
-                        <outlet property="selectPhotoButton" destination="pBt-qR-s6T" id="po2-eF-g3H"/>
-                        <outlet property="titleField" destination="pTf-yZ-a8B" id="po3-iJ-k4L"/>
-                        <outlet property="descriptionField" destination="pTv-gH-i0J" id="po4-mN-o5P"/>
+                        <outlet property="activityIndicator" destination="pAi-eE-fF6" id="poC-sT-u3V"/>
                         <outlet property="cameraField" destination="pCf-sT-u3V" id="po5-qR-s6T"/>
-                        <outlet property="isoField" destination="pIf-cC-dD2" id="po6-uV-w7X"/>
+                        <outlet property="descriptionField" destination="pTv-gH-i0J" id="po4-mN-o5P"/>
                         <outlet property="exposureField" destination="pEf-eE-fF3" id="po7-yZ-a8B"/>
                         <outlet property="focalLengthField" destination="pFf-gG-hH4" id="po8-cD-e9F"/>
+                        <outlet property="imageView" destination="pIv-iJ-k4L" id="po1-aB-c2D"/>
+                        <outlet property="isoField" destination="pIf-cC-dD2" id="po6-uV-w7X"/>
                         <outlet property="locationField" destination="pLf-kK-lL6" id="po9-gH-i0J"/>
-                        <outlet property="statusLabel" destination="pSl-oO-pP8" id="poA-kL-m1N"/>
                         <outlet property="postButton" destination="pPb-qQ-rR9" id="poB-oP-q2R"/>
-                        <outlet property="activityIndicator" destination="pAi-eE-fF6" id="poC-sT-u3V"/>
+                        <outlet property="selectPhotoButton" destination="pBt-qR-s6T" id="po2-eF-g3H"/>
+                        <outlet property="statusLabel" destination="pSl-oO-pP8" id="poA-kL-m1N"/>
+                        <outlet property="titleField" destination="pTf-yZ-a8B" id="po3-iJ-k4L"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="PPv-fr-001" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2683" y="804"/>
+            <point key="canvasLocation" x="2681" y="1499"/>
         </scene>
         <!--Feed Filter View Controller-->
         <scene sceneID="FFv-sc-001">
@@ -820,13 +823,13 @@
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Sort By" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ffB-uV-w7X">
-                                <rect key="frame" x="19.999999999999996" y="288" width="54.666666666666657" height="20"/>
+                                <rect key="frame" x="19.999999999999996" y="248" width="54.666666666666657" height="20"/>
                                 <fontDescription key="fontDescription" type="system" weight="medium" pointSize="16"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="ffG-yZ-a8B">
-                                <rect key="frame" x="20" y="322" width="400" height="32"/>
+                                <rect key="frame" x="20" y="282" width="400" height="32"/>
                                 <segments>
                                     <segment title="Newest"/>
                                     <segment title="Oldest"/>
@@ -879,7 +882,6 @@
                     <navigationItem key="navigationItem" id="FFv-ni-001"/>
                     <connections>
                         <outlet property="searchField" destination="ffS-eF-g3H" id="ffo-aB-c2D"/>
-
                         <outlet property="sortSegment" destination="ffG-yZ-a8B" id="ffo-iJ-k4L"/>
                     </connections>
                 </viewController>
@@ -1068,13 +1070,13 @@
                     </view>
                     <navigationItem key="navigationItem" id="EPv-ni-001"/>
                     <connections>
-                        <outlet property="titleField" destination="eTf-mN-o5P" id="eo1-aB-c2D"/>
-                        <outlet property="descriptionField" destination="eTv-uV-w7X" id="eo2-eF-g3H"/>
                         <outlet property="cameraField" destination="eCf-cD-e9F" id="eo3-iJ-k4L"/>
-                        <outlet property="isoField" destination="eIf-oP-q2R" id="eo4-mN-o5P"/>
+                        <outlet property="descriptionField" destination="eTv-uV-w7X" id="eo2-eF-g3H"/>
                         <outlet property="exposureField" destination="eEf-sT-u3V" id="eo5-qR-s6T"/>
                         <outlet property="focalLengthField" destination="eFf-wX-y4Z" id="eo6-uV-w7X"/>
+                        <outlet property="isoField" destination="eIf-oP-q2R" id="eo4-mN-o5P"/>
                         <outlet property="locationField" destination="eLf-aA-bB1" id="eo7-yZ-a8B"/>
+                        <outlet property="titleField" destination="eTf-mN-o5P" id="eo1-aB-c2D"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="EPv-fr-001" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -1119,7 +1121,7 @@
             </objects>
             <point key="canvasLocation" x="1756.4885496183206" y="130.98591549295776"/>
         </scene>
-        <!--Settings-->
+        <!--Profile-->
         <scene sceneID="XBd-zz-Z2N">
             <objects>
                 <navigationController storyboardIdentifier="SettingsNavigationController" automaticallyAdjustsScrollViewInsets="NO" id="L7E-nT-kj5" sceneMemberID="viewController">
@@ -1145,7 +1147,6 @@
     <resources>
         <image name="appIcon" width="56" height="56"/>
         <image name="ellipsis.circle.fill" width="128" height="128"/>
-        <image name="gear" catalog="system" width="128" height="122"/>
         <image name="line.3.horizontal.decrease.circle" catalog="system" width="128" height="123"/>
         <image name="map" catalog="system" width="128" height="112"/>
         <image name="person.circle" catalog="system" width="128" height="123"/>
@@ -1153,17 +1154,20 @@
         <image name="plus.circle.fill" catalog="system" width="128" height="123"/>
         <image name="star" width="128" height="128"/>
         <image name="xmark.circle.fill" width="128" height="128"/>
+        <systemColor name="secondaryLabelColor">
+            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
         <systemColor name="secondarySystemBackgroundColor">
-            <color red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemIndigoColor">
-            <color red="0.34509803919999998" green="0.33725490200000002" blue="0.83921568629999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.38039215686274508" green="0.33333333333333331" blue="0.96078431372549022" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemRedColor">
-            <color red="1" green="0.23137254900000001" blue="0.18823529410000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="1" green="0.2196078431372549" blue="0.23529411764705882" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>
