@@ -40,7 +40,7 @@ struct ImageMetadata {
 
     var isoFormatted: String? {
         guard let iso = iso?.first else { return nil }
-        return "ISO \(iso)"
+        return "\(iso)"
     }
 
     var coordinateFormatted: String? {
