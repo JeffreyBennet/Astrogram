@@ -1,5 +1,7 @@
 import UIKit
 import FirebaseAuth
+import PhotosUI
+
 
 final class PostPhotoViewController: UIViewController {
 
@@ -59,14 +61,24 @@ final class PostPhotoViewController: UIViewController {
         present(alert, animated: true)
     }
 
-    private func presentImagePicker(source: UIImagePickerController.SourceType) {
-        let picker = UIImagePickerController()
-        picker.sourceType = source
-        picker.delegate = self
-        picker.allowsEditing = false
-        present(picker, animated: true)
-    }
 
+    private func presentImagePicker(source: UIImagePickerController.SourceType) {
+        if source == .camera {
+            //camera can still use UIIMagePicker.. no need for exif
+            let picker = UIImagePickerController()
+            picker.sourceType = .camera
+            picker.delegate = self
+            present(picker, animated: true)
+        //this is for maintaining metadata
+        } else {
+            var config = PHPickerConfiguration(photoLibrary: .shared())
+            config.selectionLimit = 1
+            config.filter = .images
+            let picker = PHPickerViewController(configuration: config)
+            picker.delegate = self
+            present(picker, animated: true)
+        }
+    }
     @IBAction func postTapped(_ sender: Any) {
         view.endEditing(true)
 
@@ -183,5 +195,27 @@ extension PostPhotoViewController: UIImagePickerControllerDelegate, UINavigation
 
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         picker.dismiss(animated: true)
+    }
+}
+extension PostPhotoViewController: PHPickerViewControllerDelegate {
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        picker.dismiss(animated: true)
+        guard let result = results.first else { return }
+
+        ImageMetadataExtractor.extract(from: result) { [weak self] image, metadata in
+            guard let self else { return }
+            self.selectedImage = image
+            self.imageView.image = image
+
+            if let meta = metadata {
+                let make                    = meta.cameraMake ?? ""
+                let model                   = meta.cameraModel ?? ""
+                self.cameraField.text = "\(make) \(model)".trimmingCharacters(in: .whitespaces)
+                
+                self.isoField.text          = meta.isoFormatted ?? ""
+                self.exposureField.text     = meta.shutterSpeedFormatted ?? ""
+                self.focalLengthField.text = meta.focalLengthFormatted ?? ""
+            }
+        }
     }
 }
