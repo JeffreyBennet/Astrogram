@@ -6,6 +6,7 @@ final class PostDetailViewController: UIViewController {
     var post: AstroPost!
     var cachedImage: UIImage?
     var onPostUpdated: (() -> Void)?
+    var allowsEditing: Bool = false
 
     // MARK: - UI Elements
 
@@ -26,7 +27,7 @@ final class PostDetailViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .black
+        view.backgroundColor = .systemBackground
         setupUI()
         populateData()
         checkStarStatus()
@@ -40,7 +41,7 @@ final class PostDetailViewController: UIViewController {
         // Scroll view
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.alwaysBounceVertical = true
-        scrollView.backgroundColor = .black
+        scrollView.backgroundColor = .systemBackground
         view.addSubview(scrollView)
 
         NSLayoutConstraint.activate([
@@ -67,7 +68,7 @@ final class PostDetailViewController: UIViewController {
 
         // Image
         imageView.contentMode = .scaleAspectFit
-        imageView.backgroundColor = .black
+        imageView.backgroundColor = .secondarySystemBackground
         imageView.clipsToBounds = true
         contentStack.addArrangedSubview(imageView)
 
@@ -98,8 +99,8 @@ final class PostDetailViewController: UIViewController {
         closeButton.translatesAutoresizingMaskIntoConstraints = false
         let config = UIImage.SymbolConfiguration(pointSize: 18, weight: .semibold)
         closeButton.setImage(UIImage(systemName: "xmark.circle.fill", withConfiguration: config), for: .normal)
-        closeButton.tintColor = .white
-        closeButton.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        closeButton.tintColor = .label
+        closeButton.backgroundColor = UIColor.systemBackground.withAlphaComponent(0.7)
         closeButton.layer.cornerRadius = 18
         closeButton.addTarget(self, action: #selector(closeTapped), for: .touchUpInside)
         view.addSubview(closeButton)
@@ -111,14 +112,14 @@ final class PostDetailViewController: UIViewController {
             closeButton.heightAnchor.constraint(equalToConstant: 36)
         ])
 
-        // Edit/Delete button for owner
-        if isOwner {
+        // Edit/Delete button - only when allowsEditing is true (Profile tab)
+        if allowsEditing && isOwner {
             let editButton = UIButton(type: .system)
             editButton.translatesAutoresizingMaskIntoConstraints = false
             let editConfig = UIImage.SymbolConfiguration(pointSize: 18, weight: .semibold)
             editButton.setImage(UIImage(systemName: "ellipsis.circle.fill", withConfiguration: editConfig), for: .normal)
-            editButton.tintColor = .white
-            editButton.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+            editButton.tintColor = .label
+            editButton.backgroundColor = UIColor.systemBackground.withAlphaComponent(0.7)
             editButton.layer.cornerRadius = 18
             editButton.addTarget(self, action: #selector(editMenuTapped), for: .touchUpInside)
             view.addSubview(editButton)
@@ -138,7 +139,7 @@ final class PostDetailViewController: UIViewController {
 
         starCountLabel.translatesAutoresizingMaskIntoConstraints = false
         starCountLabel.font = .systemFont(ofSize: 15, weight: .semibold)
-        starCountLabel.textColor = .white
+        starCountLabel.textColor = .label
         view.addSubview(starCountLabel)
 
         NSLayoutConstraint.activate([
@@ -154,7 +155,7 @@ final class PostDetailViewController: UIViewController {
 
         // Activity indicator
         activityIndicator.hidesWhenStopped = true
-        activityIndicator.color = .white
+        activityIndicator.color = .label
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(activityIndicator)
         NSLayoutConstraint.activate([
@@ -192,7 +193,7 @@ final class PostDetailViewController: UIViewController {
         let titleLabel = UILabel()
         titleLabel.text = post.title
         titleLabel.font = .systemFont(ofSize: 24, weight: .bold)
-        titleLabel.textColor = .white
+        titleLabel.textColor = .label
         titleLabel.numberOfLines = 0
         metaStack.addArrangedSubview(titleLabel)
 
@@ -203,7 +204,7 @@ final class PostDetailViewController: UIViewController {
         let authorLabel = UILabel()
         authorLabel.text = "by \(post.userEmail)  •  \(dateFormatter.string(from: post.timestamp))"
         authorLabel.font = .systemFont(ofSize: 13)
-        authorLabel.textColor = .lightGray
+        authorLabel.textColor = .secondaryLabel
         authorLabel.numberOfLines = 0
         metaStack.addArrangedSubview(authorLabel)
 
@@ -212,14 +213,14 @@ final class PostDetailViewController: UIViewController {
             let descLabel = UILabel()
             descLabel.text = post.description
             descLabel.font = .systemFont(ofSize: 16)
-            descLabel.textColor = UIColor.white.withAlphaComponent(0.9)
+            descLabel.textColor = .label
             descLabel.numberOfLines = 0
             metaStack.addArrangedSubview(descLabel)
         }
 
         // Divider
         let divider = UIView()
-        divider.backgroundColor = UIColor.white.withAlphaComponent(0.2)
+        divider.backgroundColor = .separator
         divider.heightAnchor.constraint(equalToConstant: 1).isActive = true
         metaStack.addArrangedSubview(divider)
 
@@ -229,7 +230,7 @@ final class PostDetailViewController: UIViewController {
             let settingsTitle = UILabel()
             settingsTitle.text = "Camera Settings"
             settingsTitle.font = .systemFont(ofSize: 16, weight: .semibold)
-            settingsTitle.textColor = .white
+            settingsTitle.textColor = .label
             metaStack.addArrangedSubview(settingsTitle)
 
             let grid = UIStackView()
@@ -255,7 +256,7 @@ final class PostDetailViewController: UIViewController {
         // Location
         if !post.locationName.isEmpty {
             let locDivider = UIView()
-            locDivider.backgroundColor = UIColor.white.withAlphaComponent(0.2)
+            locDivider.backgroundColor = .separator
             locDivider.heightAnchor.constraint(equalToConstant: 1).isActive = true
             metaStack.addArrangedSubview(locDivider)
 
@@ -278,13 +279,13 @@ final class PostDetailViewController: UIViewController {
         let labelText = UILabel()
         labelText.text = "\(label):"
         labelText.font = .systemFont(ofSize: 14, weight: .medium)
-        labelText.textColor = .lightGray
+        labelText.textColor = .secondaryLabel
         labelText.setContentHuggingPriority(.required, for: .horizontal)
 
         let valueText = UILabel()
         valueText.text = value
         valueText.font = .systemFont(ofSize: 14)
-        valueText.textColor = .white
+        valueText.textColor = .label
         valueText.numberOfLines = 0
 
         row.addArrangedSubview(iconView)
@@ -310,7 +311,7 @@ final class PostDetailViewController: UIViewController {
         let iconName = isStarred ? "star.fill" : "star"
         let config = UIImage.SymbolConfiguration(pointSize: 24, weight: .medium)
         starButton.setImage(UIImage(systemName: iconName, withConfiguration: config), for: .normal)
-        starButton.tintColor = isStarred ? .systemYellow : .white
+        starButton.tintColor = isStarred ? .systemYellow : .label
         starCountLabel.text = post.starCount > 0 ? "\(post.starCount)" : ""
     }
 
@@ -462,111 +463,21 @@ final class EditPostViewController: UIViewController {
     var post: AstroPost!
     var onSave: (([String: Any]) -> Void)?
 
-    private let scrollView = UIScrollView()
-    private let stack = UIStackView()
-    private let titleField = UITextField()
-    private let descriptionField = UITextView()
-    private let cameraField = UITextField()
-    private let isoField = UITextField()
-    private let exposureField = UITextField()
-    private let focalLengthField = UITextField()
-    private let locationField = UITextField()
+    @IBOutlet weak var titleField: UITextField!
+    @IBOutlet weak var descriptionField: UITextView!
+    @IBOutlet weak var cameraField: UITextField!
+    @IBOutlet weak var isoField: UITextField!
+    @IBOutlet weak var exposureField: UITextField!
+    @IBOutlet weak var focalLengthField: UITextField!
+    @IBOutlet weak var locationField: UITextField!
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
-        setupUI()
         populateFields()
 
         let tap = UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing))
         tap.cancelsTouchesInView = false
         view.addGestureRecognizer(tap)
-    }
-
-    private func setupUI() {
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.alwaysBounceVertical = true
-        view.addSubview(scrollView)
-
-        NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        ])
-
-        stack.axis = .vertical
-        stack.spacing = 14
-        stack.alignment = .fill
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.addSubview(stack)
-
-        NSLayoutConstraint.activate([
-            stack.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor, constant: 20),
-            stack.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor, constant: 20),
-            stack.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor, constant: -20),
-            stack.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor, constant: -20),
-            stack.widthAnchor.constraint(equalTo: scrollView.frameLayoutGuide.widthAnchor, constant: -40)
-        ])
-
-        let header = UILabel()
-        header.text = "Edit Post"
-        header.font = .systemFont(ofSize: 22, weight: .bold)
-        stack.addArrangedSubview(header)
-
-        styleField(titleField, placeholder: "Title")
-        stack.addArrangedSubview(titleField)
-
-        descriptionField.font = .systemFont(ofSize: 16)
-        descriptionField.layer.borderColor = UIColor.separator.cgColor
-        descriptionField.layer.borderWidth = 1
-        descriptionField.layer.cornerRadius = 8
-        descriptionField.textContainerInset = UIEdgeInsets(top: 10, left: 8, bottom: 10, right: 8)
-        descriptionField.heightAnchor.constraint(greaterThanOrEqualToConstant: 80).isActive = true
-        descriptionField.backgroundColor = .secondarySystemBackground
-        stack.addArrangedSubview(descriptionField)
-
-        let descHint = UILabel()
-        descHint.text = "Description"
-        descHint.font = .systemFont(ofSize: 12)
-        descHint.textColor = .secondaryLabel
-        stack.addArrangedSubview(descHint)
-
-        styleField(cameraField, placeholder: "Camera")
-        stack.addArrangedSubview(cameraField)
-
-        let settingsRow = UIStackView()
-        settingsRow.axis = .horizontal
-        settingsRow.spacing = 12
-        settingsRow.distribution = .fillEqually
-        styleField(isoField, placeholder: "ISO")
-        styleField(exposureField, placeholder: "Exposure")
-        styleField(focalLengthField, placeholder: "Focal Length")
-        settingsRow.addArrangedSubview(isoField)
-        settingsRow.addArrangedSubview(exposureField)
-        settingsRow.addArrangedSubview(focalLengthField)
-        stack.addArrangedSubview(settingsRow)
-
-        styleField(locationField, placeholder: "Location")
-        stack.addArrangedSubview(locationField)
-
-        let saveButton = UIButton(type: .system)
-        var config = UIButton.Configuration.filled()
-        config.title = "Save Changes"
-        config.baseBackgroundColor = .systemIndigo
-        config.cornerStyle = .large
-        saveButton.configuration = config
-        saveButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        saveButton.addTarget(self, action: #selector(saveTapped), for: .touchUpInside)
-        stack.addArrangedSubview(saveButton)
-    }
-
-    private func styleField(_ field: UITextField, placeholder: String) {
-        field.placeholder = placeholder
-        field.borderStyle = .roundedRect
-        field.font = .systemFont(ofSize: 16)
-        field.backgroundColor = .secondarySystemBackground
-        field.heightAnchor.constraint(equalToConstant: 44).isActive = true
     }
 
     private func populateFields() {
@@ -579,7 +490,7 @@ final class EditPostViewController: UIViewController {
         locationField.text = post.locationName
     }
 
-    @objc private func saveTapped() {
+    @IBAction func saveTapped(_ sender: Any) {
         guard let title = titleField.text, !title.trimmingCharacters(in: .whitespaces).isEmpty else {
             let alert = UIAlertController(title: "Error", message: "Title is required", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default))

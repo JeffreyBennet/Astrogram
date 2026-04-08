@@ -12,7 +12,6 @@ final class FeedFilterViewController: UIViewController {
     // MARK: - IBOutlets
 
     @IBOutlet weak var searchField: UITextField!
-    @IBOutlet weak var myPostsSwitch: UISwitch!
     @IBOutlet weak var sortSegment: UISegmentedControl!
 
     // MARK: - Lifecycle
@@ -23,7 +22,6 @@ final class FeedFilterViewController: UIViewController {
     }
 
     private func loadCurrentFilter() {
-        myPostsSwitch.isOn = currentFilter.myPostsOnly
         sortSegment.selectedSegmentIndex = currentFilter.sortBy.rawValue
         searchField.text = currentFilter.searchText
     }
@@ -37,7 +35,6 @@ final class FeedFilterViewController: UIViewController {
 
     @IBAction func applyTapped(_ sender: Any) {
         var filter = FeedFilter()
-        filter.myPostsOnly = myPostsSwitch.isOn
         filter.sortBy = FeedFilter.SortOrder(rawValue: sortSegment.selectedSegmentIndex) ?? .newest
         filter.searchText = searchField.text
 

@@ -79,13 +79,8 @@ final class FirebasePostService {
     func fetchPosts(filter: FeedFilter, completion: @escaping (Result<[AstroPost], Error>) -> Void) {
         var query: Query = db.collection(postsCollection)
 
-        // Filter: my posts only
-        if filter.myPostsOnly, let uid = Auth.auth().currentUser?.uid {
-            query = query.whereField("userId", isEqualTo: uid)
-        }
-
-        // Filter: camera type
-        if let camera = filter.camera, !camera.isEmpty {
+        // Filter: camera type (server-side only if not combined with userId filter)
+        if !filter.myPostsOnly, let camera = filter.camera, !camera.isEmpty {
             query = query.whereField("camera", isEqualTo: camera)
         }
 
@@ -102,6 +97,8 @@ final class FirebasePostService {
 
         query.getDocuments { snapshot, error in
             if let error = error {
+                print("[FirebasePostService] ERROR fetching posts: \(error.localizedDescription)")
+                print("[FirebasePostService] Full error: \(error)")
                 completion(.failure(error))
                 return
             }
@@ -110,6 +107,21 @@ final class FirebasePostService {
                 return
             }
             var posts = documents.compactMap { AstroPost.from(document: $0) }
+
+            // Client-side: my posts only
+            if filter.myPostsOnly, let uid = Auth.auth().currentUser?.uid {
+                posts = posts.filter { $0.userId == uid }
+            }
+
+            // Client-side: exclude user
+            if let excludeUid = filter.excludeUserId, !excludeUid.isEmpty {
+                posts = posts.filter { $0.userId != excludeUid }
+            }
+
+            // Client-side: camera filter
+            if let camera = filter.camera, !camera.isEmpty {
+                posts = posts.filter { $0.camera == camera }
+            }
 
             // Client-side date filtering
             if let startDate = filter.startDate {
@@ -244,6 +256,7 @@ final class FirebasePostService {
 
 struct FeedFilter {
     var myPostsOnly: Bool = false
+    var excludeUserId: String? = nil
     var camera: String? = nil
     var sortBy: SortOrder = .newest
     var startDate: Date? = nil
