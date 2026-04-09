@@ -29,6 +29,8 @@ Suyog (Release 25%, Overall 25%)
 • Implemented the external API connection for both cloud, and rain overlays  
 • Implemented Tile overlays for both of the above  
 • Poilshed UI for sleeker map look  
+• Added user post pins as map layer
+• Implemented map picker functionality for post's location selection
 
 Differences / Deviations:
 
