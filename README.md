@@ -1,6 +1,6 @@
 README – Astrogram
 CS 371L – Spring 2026
-Alpha Release
+Beta Release
 
 Contributions:
 
