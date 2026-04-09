@@ -1,6 +1,7 @@
 import UIKit
 import FirebaseAuth
 import PhotosUI
+import MapKit
 
 
 final class PostPhotoViewController: UIViewController {
@@ -21,6 +22,8 @@ final class PostPhotoViewController: UIViewController {
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
 
     private var selectedImage: UIImage?
+    private var selectedCoordinate: CLLocationCoordinate2D?
+    private var selectedPlaceName: String?
 
     // MARK: - Lifecycle
 
@@ -35,6 +38,8 @@ final class PostPhotoViewController: UIViewController {
         let tap = UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing))
         tap.cancelsTouchesInView = false
         view.addGestureRecognizer(tap)
+
+        configureLocationPicker()
     }
 
     // MARK: - IBActions
@@ -114,6 +119,35 @@ final class PostPhotoViewController: UIViewController {
         }
     }
 
+    @IBAction func setLocationTapped(_ sender: Any) {
+        presentMapPicker()
+    }
+
+    private func configureLocationPicker() {
+        locationField.delegate = self
+        locationField.placeholder = "Tap to pick on map"
+        locationField.tintColor = .clear
+
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(systemName: "map"), for: .normal)
+        button.addTarget(self, action: #selector(locationAccessoryTapped), for: .touchUpInside)
+        locationField.rightView = button
+        locationField.rightViewMode = .always
+    }
+
+    @objc private func locationAccessoryTapped() {
+        presentMapPicker()
+    }
+
+    private func presentMapPicker() {
+        let picker = MapPickerViewController()
+        picker.delegate = self
+        picker.initialCoordinate = selectedCoordinate
+        picker.initialPlaceName = selectedPlaceName
+        let navigationController = UINavigationController(rootViewController: picker)
+        present(navigationController, animated: true)
+    }
+
     private func createPostDocument(userId: String, userEmail: String, imageURL: String, imagePath: String) {
         let post = AstroPost(
             id: nil,
@@ -127,9 +161,9 @@ final class PostPhotoViewController: UIViewController {
             iso: isoField.text?.trimmingCharacters(in: .whitespaces) ?? "",
             exposure: exposureField.text?.trimmingCharacters(in: .whitespaces) ?? "",
             focalLength: focalLengthField.text?.trimmingCharacters(in: .whitespaces) ?? "",
-            locationName: locationField.text?.trimmingCharacters(in: .whitespaces) ?? "",
-            latitude: nil,
-            longitude: nil,
+            locationName: selectedPlaceName ?? "",
+            latitude: selectedCoordinate?.latitude,
+            longitude: selectedCoordinate?.longitude,
             timestamp: Date(),
             starCount: 0
         )
@@ -166,6 +200,8 @@ final class PostPhotoViewController: UIViewController {
         exposureField.text = ""
         focalLengthField.text = ""
         locationField.text = ""
+        selectedCoordinate = nil
+        selectedPlaceName = nil
         statusLabel.text = ""
     }
 
@@ -217,5 +253,23 @@ extension PostPhotoViewController: PHPickerViewControllerDelegate {
                 self.focalLengthField.text = meta.focalLengthFormatted ?? ""
             }
         }
+    }
+}
+
+extension PostPhotoViewController: UITextFieldDelegate {
+    func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
+        if textField == locationField {
+            presentMapPicker()
+            return false
+        }
+        return true
+    }
+}
+
+extension PostPhotoViewController: MapPickerDelegate {
+    func mapPickerDidSelect(coordinate: CLLocationCoordinate2D, placeName: String) {
+        selectedCoordinate = coordinate
+        selectedPlaceName = placeName
+        locationField.text = placeName
     }
 }
