@@ -21,12 +21,12 @@ final class AppSettings {
     }
 
     var showLightLayer: Bool {
-        get { defaults.object(forKey: Keys.showLight) as? Bool ?? true }
+        get { defaults.object(forKey: Keys.showLight) as? Bool ?? false }
         set { defaults.set(newValue, forKey: Keys.showLight) }
     }
 
     var showCloudLayer: Bool {
-        get { defaults.object(forKey: Keys.showClouds) as? Bool ?? true }
+        get { defaults.object(forKey: Keys.showClouds) as? Bool ?? false }
         set { defaults.set(newValue, forKey: Keys.showClouds) }
     }
 
@@ -46,7 +46,7 @@ final class AppSettings {
     }
         
     var showRainLayer: Bool {
-        get { defaults.object(forKey: Keys.showRain) as? Bool ?? true }
+        get { defaults.object(forKey: Keys.showRain) as? Bool ?? false }
         set { defaults.set(newValue, forKey: Keys.showRain) }
     }
 }
