@@ -1,5 +1,6 @@
 import UIKit
 import FirebaseAuth
+import MapKit
 
 final class PostDetailViewController: UIViewController {
 
@@ -260,7 +261,12 @@ final class PostDetailViewController: UIViewController {
             locDivider.heightAnchor.constraint(equalToConstant: 1).isActive = true
             metaStack.addArrangedSubview(locDivider)
 
-            metaStack.addArrangedSubview(makeMetaRow(icon: "mappin.and.ellipse", label: "Location", value: post.locationName))
+            let locationRow = makeMetaRow(icon: "mappin.and.ellipse", label: "Location", value: post.locationName)
+            if post.latitude != nil, post.longitude != nil {
+                locationRow.isUserInteractionEnabled = true
+                locationRow.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(openOnMapTapped)))
+            }
+            metaStack.addArrangedSubview(locationRow)
         }
     }
 
@@ -341,6 +347,23 @@ final class PostDetailViewController: UIViewController {
         dismiss(animated: true)
     }
 
+    @objc private func openOnMapTapped() {
+        guard let lat = post.latitude, let lon = post.longitude else { return }
+        guard let tabBarController = resolveTabBarController() else { return }
+        let mapIndex = resolveMapTabIndex(in: tabBarController)
+        let payload: [String: Any] = [
+            "postId": post.id ?? "",
+            "lat": lat,
+            "lon": lon,
+            "imageURL": post.imageURL
+        ]
+
+        tabBarController.selectedIndex = mapIndex
+        tabBarController.dismiss(animated: true) {
+            NotificationCenter.default.post(name: .showPostOnMap, object: nil, userInfo: payload)
+        }
+    }
+
     @objc private func editMenuTapped() {
         let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
 
@@ -396,8 +419,8 @@ final class PostDetailViewController: UIViewController {
                             exposure: fields["exposure"] as? String ?? self.post.exposure,
                             focalLength: fields["focalLength"] as? String ?? self.post.focalLength,
                             locationName: fields["locationName"] as? String ?? self.post.locationName,
-                            latitude: self.post.latitude,
-                            longitude: self.post.longitude,
+                            latitude: fields["latitude"] as? Double ?? self.post.latitude,
+                            longitude: fields["longitude"] as? Double ?? self.post.longitude,
                             timestamp: self.post.timestamp,
                             starCount: self.post.starCount
                         )
@@ -454,6 +477,63 @@ final class PostDetailViewController: UIViewController {
             }
         }
     }
+
+    private func resolveTabBarController() -> UITabBarController? {
+        if let tab = presentingViewController?.tabBarController {
+            return tab
+        }
+        if let nav = presentingViewController as? UINavigationController,
+           let tab = nav.tabBarController {
+            return tab
+        }
+        if let tab = presentingViewController?.view.window?.rootViewController as? UITabBarController {
+            return tab
+        }
+
+        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        for scene in scenes {
+            if let root = scene.windows.first(where: \.isKeyWindow)?.rootViewController,
+               let tab = findTabBarController(in: root) {
+                return tab
+            }
+        }
+        return nil
+    }
+
+    private func resolveMapTabIndex(in tabBarController: UITabBarController) -> Int {
+        guard let tabs = tabBarController.viewControllers else { return 2 }
+        return tabs.firstIndex(where: { controller in
+            if controller.tabBarItem.title == "Map" {
+                return true
+            }
+            if let nav = controller as? UINavigationController {
+                return nav.viewControllers.first is MapViewController
+            }
+            return controller is MapViewController
+        }) ?? 2
+    }
+
+    private func findTabBarController(in controller: UIViewController) -> UITabBarController? {
+        if let tab = controller as? UITabBarController {
+            return tab
+        }
+        if let nav = controller as? UINavigationController {
+            for child in nav.viewControllers {
+                if let tab = findTabBarController(in: child) {
+                    return tab
+                }
+            }
+        }
+        for child in controller.children {
+            if let tab = findTabBarController(in: child) {
+                return tab
+            }
+        }
+        if let presented = controller.presentedViewController {
+            return findTabBarController(in: presented)
+        }
+        return nil
+    }
 }
 
 // MARK: - Edit Post View Controller
@@ -471,9 +551,13 @@ final class EditPostViewController: UIViewController {
     @IBOutlet weak var focalLengthField: UITextField!
     @IBOutlet weak var locationField: UITextField!
 
+    private var selectedCoordinate: CLLocationCoordinate2D?
+    private var selectedPlaceName: String?
+
     override func viewDidLoad() {
         super.viewDidLoad()
         populateFields()
+        configureLocationPicker()
 
         let tap = UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing))
         tap.cancelsTouchesInView = false
@@ -488,6 +572,39 @@ final class EditPostViewController: UIViewController {
         exposureField.text = post.exposure
         focalLengthField.text = post.focalLength
         locationField.text = post.locationName
+        if let lat = post.latitude, let lon = post.longitude {
+            selectedCoordinate = CLLocationCoordinate2D(latitude: lat, longitude: lon)
+        }
+        selectedPlaceName = post.locationName
+    }
+
+    private func configureLocationPicker() {
+        locationField.delegate = self
+        locationField.placeholder = "Tap to pick on map"
+        locationField.tintColor = .clear
+
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(systemName: "map"), for: .normal)
+        button.addTarget(self, action: #selector(locationAccessoryTapped), for: .touchUpInside)
+        locationField.rightView = button
+        locationField.rightViewMode = .always
+    }
+
+    @objc private func locationAccessoryTapped() {
+        presentMapPicker()
+    }
+
+    @IBAction func setLocationTapped(_ sender: Any) {
+        presentMapPicker()
+    }
+
+    private func presentMapPicker() {
+        let picker = MapPickerViewController()
+        picker.delegate = self
+        picker.initialCoordinate = selectedCoordinate
+        picker.initialPlaceName = selectedPlaceName
+        let navigationController = UINavigationController(rootViewController: picker)
+        present(navigationController, animated: true)
     }
 
     @IBAction func saveTapped(_ sender: Any) {
@@ -498,17 +615,39 @@ final class EditPostViewController: UIViewController {
             return
         }
 
-        let fields: [String: Any] = [
+        var fields: [String: Any] = [
             "title": title.trimmingCharacters(in: .whitespaces),
             "description": descriptionField.text?.trimmingCharacters(in: .whitespaces) ?? "",
             "camera": cameraField.text?.trimmingCharacters(in: .whitespaces) ?? "",
             "iso": isoField.text?.trimmingCharacters(in: .whitespaces) ?? "",
             "exposure": exposureField.text?.trimmingCharacters(in: .whitespaces) ?? "",
             "focalLength": focalLengthField.text?.trimmingCharacters(in: .whitespaces) ?? "",
-            "locationName": locationField.text?.trimmingCharacters(in: .whitespaces) ?? ""
+            "locationName": selectedPlaceName ?? locationField.text?.trimmingCharacters(in: .whitespaces) ?? ""
         ]
+        if let coordinate = selectedCoordinate {
+            fields["latitude"] = coordinate.latitude
+            fields["longitude"] = coordinate.longitude
+        }
 
         onSave?(fields)
         dismiss(animated: true)
+    }
+}
+
+extension EditPostViewController: UITextFieldDelegate {
+    func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
+        if textField == locationField {
+            presentMapPicker()
+            return false
+        }
+        return true
+    }
+}
+
+extension EditPostViewController: MapPickerDelegate {
+    func mapPickerDidSelect(coordinate: CLLocationCoordinate2D, placeName: String) {
+        selectedCoordinate = coordinate
+        selectedPlaceName = placeName
+        locationField.text = placeName
     }
 }

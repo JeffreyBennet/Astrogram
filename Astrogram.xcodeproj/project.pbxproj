@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		241590712F875919006F2FFD /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 241590702F875919006F2FFD /* Notifications.swift */; };
+		241590732F875919006F2FFD /* PostAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 241590722F875919006F2FFD /* PostAnnotation.swift */; };
+		241590752F875945006F2FFD /* MapPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 241590742F875945006F2FFD /* MapPickerViewController.swift */; };
 		AD4475A32F60709000E9DDA4 /* FirebaseAI in Frameworks */ = {isa = PBXBuildFile; productRef = AD4475A22F60709000E9DDA4 /* FirebaseAI */; };
 		AD4475A52F60709000E9DDA4 /* FirebaseAILogic in Frameworks */ = {isa = PBXBuildFile; productRef = AD4475A42F60709000E9DDA4 /* FirebaseAILogic */; };
 		AD4475A72F60709000E9DDA4 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = AD4475A62F60709000E9DDA4 /* FirebaseAnalytics */; };
@@ -24,6 +27,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		241590702F875919006F2FFD /* Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notifications.swift; sourceTree = "<group>"; };
+		241590722F875919006F2FFD /* PostAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostAnnotation.swift; sourceTree = "<group>"; };
+		241590742F875945006F2FFD /* MapPickerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapPickerViewController.swift; sourceTree = "<group>"; };
 		ADF661A52F5A39A500DA095B /* Astrogram.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Astrogram.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -78,6 +84,9 @@
 			children = (
 				ADF661A62F5A39A500DA095B /* Products */,
 				ADF661A72F5A39A500DA095B /* Astrogram */,
+				241590742F875945006F2FFD /* MapPickerViewController.swift */,
+				241590702F875919006F2FFD /* Notifications.swift */,
+				241590722F875919006F2FFD /* PostAnnotation.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -180,6 +189,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				241590712F875919006F2FFD /* Notifications.swift in Sources */,
+				241590732F875919006F2FFD /* PostAnnotation.swift in Sources */,
+				241590752F875945006F2FFD /* MapPickerViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

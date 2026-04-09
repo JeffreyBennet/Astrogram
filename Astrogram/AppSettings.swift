@@ -18,6 +18,7 @@ final class AppSettings {
         static let nightMode = "nightMode"
         static let showVisibility = "showVisibility"
         static let showRain = "showRainLayer"
+        static let showPosts = "showPostsLayer"
     }
 
     var showLightLayer: Bool {
@@ -48,5 +49,10 @@ final class AppSettings {
     var showRainLayer: Bool {
         get { defaults.object(forKey: Keys.showRain) as? Bool ?? false }
         set { defaults.set(newValue, forKey: Keys.showRain) }
+    }
+
+    var showPostsLayer: Bool {
+        get { defaults.object(forKey: Keys.showPosts) as? Bool ?? false }
+        set { defaults.set(newValue, forKey: Keys.showPosts) }
     }
 }
