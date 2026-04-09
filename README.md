@@ -16,6 +16,8 @@ Jeffrey Bennet (Release 25%, Overall 25%)
 Helial (Release 25%, Overall 25%)  
 • Implemented the initial UI layering and screen structure using API schemas  
 • Helped organize the base layout for the application's interface  
+• Helped create post screen
+• Implemented edit post screen
 
 Braden (Release 25%, Overall 25%)  
 • Designed the UI/UX for the application  
