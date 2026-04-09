@@ -10,8 +10,8 @@ Jeffrey Bennet (Release 25%, Overall 25%)
 • Bootstrapped the application UI by creating and organizing all primary View Controllers  
 • Implemented the Filter screen  
 • Implemented the Settings screen  
-• Implemented the Feed pages
-• Handled uploading images/filesystem via Firebase
+• Implemented the Feed pages  
+• Handled uploading images/filesystem via Firebase  
 
 Helial (Release 25%, Overall 25%)  
 • Implemented the initial UI layering and screen structure using API schemas  
@@ -21,8 +21,8 @@ Braden (Release 25%, Overall 25%)
 • Designed the UI/UX for the application  
 • Implemented layout constraints for proper screen responsiveness  
 • Added and integrated the Astrogram logo into the application  
-• Updated the Astrogram logo to be borderless
-• Changed some UX behavior to follow a more expected user experience
+• Updated the Astrogram logo to be borderless  
+• Changed some UX behavior to follow a more expected user experience  
 
 Suyog (Release 25%, Overall 25%)  
 • Completed the final UI layering  
