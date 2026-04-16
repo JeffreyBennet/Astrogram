@@ -146,6 +146,13 @@ final class FirebasePostService {
         }
     }
 
+    func fetchRecentPosts(limit: Int, completion: @escaping (Result<[AstroPost], Error>) -> Void) {
+        var filter = FeedFilter()
+        filter.limit = limit
+        filter.sortBy = .newest
+        fetchPosts(filter: filter, completion: completion)
+    }
+
     // MARK: - Update Post
 
     func updatePost(id: String, fields: [String: Any], completion: @escaping (Result<Void, Error>) -> Void) {
