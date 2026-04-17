@@ -54,7 +54,6 @@ final class PostPhotoViewController: UIViewController {
         isoField.delegate = self
         focalLengthField.delegate = self
         exposureField.delegate = self
-        configureKeyboardTypes()
     }
 
     // MARK: - IBActions
@@ -161,12 +160,6 @@ final class PostPhotoViewController: UIViewController {
         picker.initialPlaceName = selectedPlaceName
         let navigationController = UINavigationController(rootViewController: picker)
         present(navigationController, animated: true)
-    }
-
-    private func configureKeyboardTypes() {
-        isoField.keyboardType = .numberPad
-        focalLengthField.keyboardType = .numberPad
-        exposureField.keyboardType = .decimalPad
     }
 
     private func normalizedDigits(from text: String, maxDigits: Int) -> String {

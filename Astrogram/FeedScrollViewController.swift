@@ -121,6 +121,9 @@ extension FeedScrollViewController: UITableViewDataSource, UITableViewDelegate {
         cell.onStarTapped = { [weak self] in
             self?.toggleStar(at: indexPath)
         }
+        cell.onLocationTapped = { [weak self] in
+            self?.openPostOnMap(post)
+        }
         return cell
     }
 
@@ -145,6 +148,84 @@ extension FeedScrollViewController: UITableViewDataSource, UITableViewDelegate {
             }
         }
     }
+
+    private func openPostOnMap(_ post: AstroPost) {
+        guard let lat = post.latitude, let lon = post.longitude else { return }
+        let payload: [String: Any] = [
+            "postId": post.id ?? "",
+            "lat": lat,
+            "lon": lon,
+            "imageURL": post.imageURL
+        ]
+
+        dismiss(animated: true) { [weak self] in
+            guard let self else { return }
+            guard let tabBarController = self.resolveRootTabBarController(),
+                  let mapIndex = self.resolveMapTabIndex(in: tabBarController) else { return }
+
+            tabBarController.selectedIndex = mapIndex
+            self.resolveMapViewController(in: tabBarController, at: mapIndex)?.loadViewIfNeeded()
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                NotificationCenter.default.post(name: .showPostOnMap, object: nil, userInfo: payload)
+            }
+        }
+    }
+
+    private func resolveRootTabBarController() -> UITabBarController? {
+        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        for scene in scenes {
+            if let root = scene.windows.first(where: \.isKeyWindow)?.rootViewController,
+               let tab = findTabBarController(in: root) {
+                return tab
+            }
+        }
+        return presentingViewController?.tabBarController
+    }
+
+    private func resolveMapTabIndex(in tabBarController: UITabBarController) -> Int? {
+        guard let controllers = tabBarController.viewControllers else { return nil }
+        return controllers.firstIndex(where: { controller in
+            if controller.tabBarItem.title == "Map" {
+                return true
+            }
+            if let nav = controller as? UINavigationController {
+                return nav.viewControllers.first is MapViewController
+            }
+            return controller is MapViewController
+        })
+    }
+
+    private func resolveMapViewController(in tabBarController: UITabBarController, at index: Int) -> MapViewController? {
+        guard let controllers = tabBarController.viewControllers, controllers.indices.contains(index) else { return nil }
+        let controller = controllers[index]
+        if let nav = controller as? UINavigationController {
+            return nav.viewControllers.first(where: { $0 is MapViewController }) as? MapViewController
+        }
+        return controller as? MapViewController
+    }
+
+    private func findTabBarController(in controller: UIViewController) -> UITabBarController? {
+        if let tab = controller as? UITabBarController {
+            return tab
+        }
+        if let nav = controller as? UINavigationController {
+            for child in nav.viewControllers {
+                if let tab = findTabBarController(in: child) {
+                    return tab
+                }
+            }
+        }
+        for child in controller.children {
+            if let tab = findTabBarController(in: child) {
+                return tab
+            }
+        }
+        if let presented = controller.presentedViewController {
+            return findTabBarController(in: presented)
+        }
+        return nil
+    }
 }
 
 // MARK: - Feed Post Cell
@@ -154,7 +235,9 @@ final class FeedPostCell: UITableViewCell {
     static let reuseID = "FeedPostCell"
 
     let postImageView = UIImageView()
+    private let starRow = UIStackView()
     private let starButton = UIButton(type: .system)
+    private let locationButton = UIButton(type: .system)
     private let starCountLabel = UILabel()
     private let titleLabel = UILabel()
     private let authorLabel = UILabel()
@@ -168,6 +251,7 @@ final class FeedPostCell: UITableViewCell {
     private let metaStack = UIStackView()
 
     var onStarTapped: (() -> Void)?
+    var onLocationTapped: (() -> Void)?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -187,7 +271,6 @@ final class FeedPostCell: UITableViewCell {
         contentView.addSubview(postImageView)
 
         // Star row
-        let starRow = UIStackView()
         starRow.axis = .horizontal
         starRow.spacing = 4
         starRow.alignment = .center
@@ -195,10 +278,12 @@ final class FeedPostCell: UITableViewCell {
         contentView.addSubview(starRow)
 
         starButton.addTarget(self, action: #selector(starTap), for: .touchUpInside)
+        locationButton.addTarget(self, action: #selector(locationTap), for: .touchUpInside)
         starCountLabel.font = .systemFont(ofSize: 14, weight: .semibold)
         starCountLabel.textColor = .label
         starRow.addArrangedSubview(starButton)
         starRow.addArrangedSubview(starCountLabel)
+        starRow.addArrangedSubview(locationButton)
 
         // Title
         titleLabel.font = .systemFont(ofSize: 18, weight: .bold)
@@ -299,6 +384,12 @@ final class FeedPostCell: UITableViewCell {
         starButton.tintColor = isStarred ? .systemYellow : .label
         starCountLabel.text = post.starCount > 0 ? "\(post.starCount)" : ""
 
+        let hasLocation = post.latitude != nil && post.longitude != nil
+        locationButton.isHidden = !hasLocation
+        locationButton.isEnabled = hasLocation
+        locationButton.setImage(UIImage(systemName: "mappin.and.ellipse", withConfiguration: config), for: .normal)
+        locationButton.tintColor = .label
+
         // Metadata
         cameraLabel.text = post.camera.isEmpty ? nil : "Camera: \(post.camera)"
         cameraLabel.isHidden = post.camera.isEmpty
@@ -324,9 +415,14 @@ final class FeedPostCell: UITableViewCell {
         onStarTapped?()
     }
 
+    @objc private func locationTap() {
+        onLocationTapped?()
+    }
+
     override func prepareForReuse() {
         super.prepareForReuse()
         postImageView.image = nil
         onStarTapped = nil
+        onLocationTapped = nil
     }
 }

@@ -264,6 +264,12 @@ final class PostDetailViewController: UIViewController {
             locDivider.heightAnchor.constraint(equalToConstant: 1).isActive = true
             metaStack.addArrangedSubview(locDivider)
 
+            let locationTitle = UILabel()
+            locationTitle.text = "Location Details"
+            locationTitle.font = .systemFont(ofSize: 16, weight: .semibold)
+            locationTitle.textColor = .label
+            metaStack.addArrangedSubview(locationTitle)
+
             let locationRow = makeMetaRow(icon: "mappin.and.ellipse", label: "Location", value: post.locationName)
             if post.latitude != nil, post.longitude != nil {
                 locationRow.isUserInteractionEnabled = true

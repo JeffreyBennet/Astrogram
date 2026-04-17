@@ -56,11 +56,6 @@ final class LoginViewController: UIViewController {
     }
 
     private func configurePasswordField() {
-        passwordTextField.isSecureTextEntry = true
-        passwordTextField.textContentType = .password
-        passwordTextField.autocorrectionType = .no
-        passwordTextField.autocapitalizationType = .none
-
         let symbolConfig = UIImage.SymbolConfiguration(pointSize: 14, weight: .regular)
         passwordVisibilityButton.setImage(UIImage(systemName: "eye", withConfiguration: symbolConfig), for: .normal)
         passwordVisibilityButton.tintColor = .secondaryLabel

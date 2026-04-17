@@ -63,13 +63,8 @@ final class SignUpViewController: UIViewController {
         configureSecureField(
             passwordTextField,
             button: passwordVisibilityButton,
-            contentType: .newPassword,
             action: #selector(togglePasswordVisibility)
         )
-        confirmPasswordTextField.isSecureTextEntry = true
-        confirmPasswordTextField.textContentType = .newPassword
-        confirmPasswordTextField.autocorrectionType = .no
-        confirmPasswordTextField.autocapitalizationType = .none
         confirmPasswordTextField.rightView = nil
         confirmPasswordTextField.rightViewMode = .never
     }
@@ -77,14 +72,8 @@ final class SignUpViewController: UIViewController {
     private func configureSecureField(
         _ textField: UITextField,
         button: UIButton,
-        contentType: UITextContentType,
         action: Selector
     ) {
-        textField.isSecureTextEntry = true
-        textField.textContentType = contentType
-        textField.autocorrectionType = .no
-        textField.autocapitalizationType = .none
-
         let symbolConfig = UIImage.SymbolConfiguration(pointSize: 14, weight: .regular)
         button.setImage(UIImage(systemName: "eye", withConfiguration: symbolConfig), for: .normal)
         button.tintColor = .secondaryLabel
