@@ -1,4 +1,5 @@
 import UIKit
+import FirebaseAuth
 
 class SplashScreenViewController: UIViewController {
 
@@ -8,6 +9,8 @@ class SplashScreenViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        // Match launch screen background to avoid a white flash before animation starts.
+        view.backgroundColor = .black
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -220,11 +223,11 @@ class SplashScreenViewController: UIViewController {
         didRequestTransition = true
         splashTimeoutWorkItem?.cancel()
 
-        // Present the LoginViewController full-screen
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let loginVC = storyboard.instantiateViewController(withIdentifier: "LoginViewController")
-        loginVC.modalPresentationStyle = .fullScreen
-        present(loginVC, animated: true)
+        let destinationIdentifier = Auth.auth().currentUser == nil ? "LoginViewController" : "TabViewController"
+        let destinationVC = storyboard.instantiateViewController(withIdentifier: destinationIdentifier)
+        destinationVC.modalPresentationStyle = .fullScreen
+        present(destinationVC, animated: true)
     }
 
     deinit {

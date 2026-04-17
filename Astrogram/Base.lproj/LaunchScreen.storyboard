@@ -25,7 +25,7 @@
                             </imageView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="S1M-Ce-leV" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="L6F-f2-HMd"/>
                             <constraint firstItem="S1M-Ce-leV" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="VWV-hL-q6X"/>
@@ -39,8 +39,5 @@
     </scenes>
     <resources>
         <image name="appIconNoBG" width="352" height="352"/>
-        <systemColor name="systemBackgroundColor">
-            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-        </systemColor>
     </resources>
 </document>
