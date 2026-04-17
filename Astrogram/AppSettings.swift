@@ -1,12 +1,5 @@
 import Foundation
 
-enum StartupLayer: Int {
-    case none = 0
-    case light = 1
-    case clouds = 2
-    case visibility = 3
-}
-
 final class AppSettings {
     static let shared = AppSettings()
     private let defaults = UserDefaults.standard
@@ -14,8 +7,8 @@ final class AppSettings {
     private enum Keys {
         static let showLight = "showLightLayer"
         static let showClouds = "showCloudLayer"
-        static let startupLayer = "startupLayer"
         static let nightMode = "nightMode"
+        static let mapNightMode = "mapNightMode"
         static let showVisibility = "showVisibility"
         static let showRain = "showRainLayer"
         static let showPosts = "showPostsLayer"
@@ -31,14 +24,14 @@ final class AppSettings {
         set { defaults.set(newValue, forKey: Keys.showClouds) }
     }
 
-    var startupLayer: StartupLayer {
-        get { StartupLayer(rawValue: defaults.integer(forKey: Keys.startupLayer)) ?? .none }
-        set { defaults.set(newValue.rawValue, forKey: Keys.startupLayer) }
-    }
-
     var nightMode: Bool {
         get { defaults.object(forKey: Keys.nightMode) as? Bool ?? false }
         set { defaults.set(newValue, forKey: Keys.nightMode) }
+    }
+
+    var mapNightMode: Bool {
+        get { defaults.object(forKey: Keys.mapNightMode) as? Bool ?? false }
+        set { defaults.set(newValue, forKey: Keys.mapNightMode) }
     }
     
     var showVisibility: Bool {
