@@ -24,6 +24,9 @@ final class MapViewController: UIViewController {
     private var visibilityTapAnnotation: MKPointAnnotation?
     private var pendingPostSelectionId: String?
     private var pendingPostSelectionCoordinate: CLLocationCoordinate2D?
+    private var isMapNightModeEnabled: Bool {
+        AppSettings.shared.nightMode || AppSettings.shared.mapNightMode
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -95,12 +98,11 @@ final class MapViewController: UIViewController {
     }
 
     private func applyNightModeIfNeeded() {
-        if AppSettings.shared.nightMode {
-            overrideUserInterfaceStyle = .dark
+        overrideUserInterfaceStyle = .unspecified
+        if isMapNightModeEnabled {
             mapView.overrideUserInterfaceStyle = .dark
             mapView.mapType = .mutedStandard
         } else {
-            overrideUserInterfaceStyle = .light
             mapView.overrideUserInterfaceStyle = .light
             mapView.mapType = .standard
         }
@@ -412,13 +414,13 @@ final class MapViewController: UIViewController {
     // Night mode button pressed
     @IBAction func nightModeButtonTapped(_ sender: Any) {
         let settings = AppSettings.shared
-        settings.nightMode.toggle()
+        settings.mapNightMode.toggle()
         applyNightModeIfNeeded()
         updateNightModeButtonIcon()
     }
     
     private func updateNightModeButtonIcon() {
-        if AppSettings.shared.nightMode {
+        if isMapNightModeEnabled {
             nightmodeButton.image = UIImage(systemName: "sun.max.fill")
         } else {
             nightmodeButton.image = UIImage(systemName: "moon.stars.fill")

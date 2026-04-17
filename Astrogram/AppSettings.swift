@@ -16,6 +16,7 @@ final class AppSettings {
         static let showClouds = "showCloudLayer"
         static let startupLayer = "startupLayer"
         static let nightMode = "nightMode"
+        static let mapNightMode = "mapNightMode"
         static let showVisibility = "showVisibility"
         static let showRain = "showRainLayer"
         static let showPosts = "showPostsLayer"
@@ -39,6 +40,11 @@ final class AppSettings {
     var nightMode: Bool {
         get { defaults.object(forKey: Keys.nightMode) as? Bool ?? false }
         set { defaults.set(newValue, forKey: Keys.nightMode) }
+    }
+
+    var mapNightMode: Bool {
+        get { defaults.object(forKey: Keys.mapNightMode) as? Bool ?? false }
+        set { defaults.set(newValue, forKey: Keys.mapNightMode) }
     }
     
     var showVisibility: Bool {
