@@ -17,6 +17,8 @@ final class PostDetailViewController: UIViewController {
     private let closeButton = UIButton(type: .system)
     private let starButton = UIButton(type: .system)
     private let starCountLabel = UILabel()
+    private let starRow = UIStackView()
+    private let starRowContainer = UIView()
     private var isStarred = false
     private let activityIndicator = UIActivityIndicatorView(style: .large)
 
@@ -133,23 +135,22 @@ final class PostDetailViewController: UIViewController {
             ])
         }
 
-        // Star button (bottom-left overlay)
-        starButton.translatesAutoresizingMaskIntoConstraints = false
+        // Star row (in content, under image)
         starButton.addTarget(self, action: #selector(starTapped), for: .touchUpInside)
-        view.addSubview(starButton)
-
-        starCountLabel.translatesAutoresizingMaskIntoConstraints = false
-        starCountLabel.font = .systemFont(ofSize: 15, weight: .semibold)
+        starCountLabel.font = .systemFont(ofSize: 14, weight: .semibold)
         starCountLabel.textColor = .label
-        view.addSubview(starCountLabel)
-
+        starRow.axis = .horizontal
+        starRow.spacing = 4
+        starRow.alignment = .center
+        starRow.translatesAutoresizingMaskIntoConstraints = false
+        starRow.addArrangedSubview(starButton)
+        starRow.addArrangedSubview(starCountLabel)
+        starRowContainer.addSubview(starRow)
         NSLayoutConstraint.activate([
-            starButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            starButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
-            starButton.widthAnchor.constraint(equalToConstant: 44),
-            starButton.heightAnchor.constraint(equalToConstant: 44),
-            starCountLabel.centerYAnchor.constraint(equalTo: starButton.centerYAnchor),
-            starCountLabel.leadingAnchor.constraint(equalTo: starButton.trailingAnchor, constant: 4)
+            starRow.topAnchor.constraint(equalTo: starRowContainer.topAnchor),
+            starRow.leadingAnchor.constraint(equalTo: starRowContainer.leadingAnchor),
+            starRow.bottomAnchor.constraint(equalTo: starRowContainer.bottomAnchor),
+            starRow.trailingAnchor.constraint(lessThanOrEqualTo: starRowContainer.trailingAnchor)
         ])
 
         updateStarAppearance()
@@ -190,6 +191,8 @@ final class PostDetailViewController: UIViewController {
     }
 
     private func populateMetaStack(_ metaStack: UIStackView) {
+        metaStack.addArrangedSubview(starRowContainer)
+
         // Title
         let titleLabel = UILabel()
         titleLabel.text = post.title
@@ -315,7 +318,7 @@ final class PostDetailViewController: UIViewController {
 
     private func updateStarAppearance() {
         let iconName = isStarred ? "star.fill" : "star"
-        let config = UIImage.SymbolConfiguration(pointSize: 24, weight: .medium)
+        let config = UIImage.SymbolConfiguration(pointSize: 22, weight: .medium)
         starButton.setImage(UIImage(systemName: iconName, withConfiguration: config), for: .normal)
         starButton.tintColor = isStarred ? .systemYellow : .label
         starCountLabel.text = post.starCount > 0 ? "\(post.starCount)" : ""
@@ -539,6 +542,14 @@ final class PostDetailViewController: UIViewController {
 // MARK: - Edit Post View Controller
 
 final class EditPostViewController: UIViewController {
+    private enum InputLimits {
+        static let title = 50
+        static let description = 200
+        static let camera = 100
+        static let isoDigits = 7
+        static let focalLengthDigits = 4
+        static let exposureDigits = 7
+    }
 
     var post: AstroPost!
     var onSave: (([String: Any]) -> Void)?
@@ -558,6 +569,13 @@ final class EditPostViewController: UIViewController {
         super.viewDidLoad()
         populateFields()
         configureLocationPicker()
+        titleField.delegate = self
+        descriptionField.delegate = self
+        cameraField.delegate = self
+        isoField.delegate = self
+        focalLengthField.delegate = self
+        exposureField.delegate = self
+        configureKeyboardTypes()
 
         let tap = UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing))
         tap.cancelsTouchesInView = false
@@ -607,18 +625,69 @@ final class EditPostViewController: UIViewController {
         present(navigationController, animated: true)
     }
 
+    private func configureKeyboardTypes() {
+        isoField.keyboardType = .numberPad
+        focalLengthField.keyboardType = .numberPad
+        exposureField.keyboardType = .decimalPad
+    }
+
+    private func normalizedDigits(from text: String, maxDigits: Int) -> String {
+        let digits = text.filter { $0.isWholeNumber }
+        return String(digits.prefix(maxDigits))
+    }
+
+    private func normalizedExposureValue(from text: String, maxDigits: Int) -> String {
+        var result = ""
+        var hasDecimalPoint = false
+        var digitCount = 0
+
+        for character in text {
+            if character.isWholeNumber {
+                guard digitCount < maxDigits else { continue }
+                result.append(character)
+                digitCount += 1
+            } else if character == ".", !hasDecimalPoint {
+                if result.isEmpty {
+                    result = "0"
+                }
+                result.append(character)
+                hasDecimalPoint = true
+            }
+        }
+        return result
+    }
+
+    private func formattedFocalLength(from text: String) -> String {
+        let digits = normalizedDigits(from: text, maxDigits: InputLimits.focalLengthDigits)
+        return digits.isEmpty ? "" : "\(digits)mm"
+    }
+
+    private func formattedExposure(from text: String) -> String {
+        let normalized = normalizedExposureValue(from: text, maxDigits: InputLimits.exposureDigits)
+        return normalized.isEmpty ? "" : "\(normalized)s"
+    }
+
     @IBAction func saveTapped(_ sender: Any) {
-        guard let title = titleField.text, !title.trimmingCharacters(in: .whitespaces).isEmpty else {
+        guard let title = titleField.text, !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             let alert = UIAlertController(title: "Error", message: "Title is required", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default))
             present(alert, animated: true)
             return
         }
 
+        let normalizedTitle = String(
+            title.trimmingCharacters(in: .whitespacesAndNewlines).prefix(InputLimits.title)
+        )
+        let normalizedDescription = String(
+            (descriptionField.text ?? "")
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+                .prefix(InputLimits.description)
+        )
+
         var fields: [String: Any] = [
-            "title": title.trimmingCharacters(in: .whitespaces),
-            "description": descriptionField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "",
-            "camera": cameraField.text?.trimmingCharacters(in: .whitespaces) ?? "",
+            "title": normalizedTitle,
+            "description": normalizedDescription,
+            "camera": String((cameraField.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines).prefix(InputLimits.camera)),
             "iso": isoField.text?.trimmingCharacters(in: .whitespaces) ?? "",
             "exposure": exposureField.text?.trimmingCharacters(in: .whitespaces) ?? "",
             "focalLength": focalLengthField.text?.trimmingCharacters(in: .whitespaces) ?? "",
@@ -642,6 +711,53 @@ extension EditPostViewController: UITextFieldDelegate {
         }
         return true
     }
+
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        let currentText = textField.text ?? ""
+        guard let textRange = Range(range, in: currentText) else { return false }
+        let updatedText = currentText.replacingCharacters(in: textRange, with: string)
+
+        if textField == titleField {
+            return updatedText.count <= InputLimits.title
+        }
+
+        if textField == cameraField {
+            return updatedText.count <= InputLimits.camera
+        }
+
+        if textField == isoField {
+            textField.text = normalizedDigits(from: updatedText, maxDigits: InputLimits.isoDigits)
+            return false
+        }
+
+        if textField == focalLengthField {
+            if string.isEmpty,
+               currentText.hasSuffix("mm"),
+               range.location >= max(0, currentText.count - 2) {
+                let digits = normalizedDigits(from: currentText, maxDigits: InputLimits.focalLengthDigits)
+                let trimmedDigits = String(digits.dropLast())
+                textField.text = trimmedDigits.isEmpty ? "" : "\(trimmedDigits)mm"
+            } else {
+                textField.text = formattedFocalLength(from: updatedText)
+            }
+            return false
+        }
+
+        if textField == exposureField {
+            if string.isEmpty,
+               currentText.hasSuffix("s"),
+               range.location >= max(0, currentText.count - 1) {
+                let normalized = normalizedExposureValue(from: currentText, maxDigits: InputLimits.exposureDigits)
+                let trimmed = String(normalized.dropLast())
+                textField.text = trimmed.isEmpty ? "" : "\(trimmed)s"
+            } else {
+                textField.text = formattedExposure(from: updatedText)
+            }
+            return false
+        }
+
+        return true
+    }
 }
 
 extension EditPostViewController: MapPickerDelegate {
@@ -649,5 +765,15 @@ extension EditPostViewController: MapPickerDelegate {
         selectedCoordinate = coordinate
         selectedPlaceName = placeName
         locationField.text = placeName
+    }
+}
+
+extension EditPostViewController: UITextViewDelegate {
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        guard textView == descriptionField else { return true }
+        let currentText = textView.text ?? ""
+        guard let textRange = Range(range, in: currentText) else { return false }
+        let updatedText = currentText.replacingCharacters(in: textRange, with: text)
+        return updatedText.count <= InputLimits.description
     }
 }

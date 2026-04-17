@@ -215,7 +215,7 @@
                                 <rect key="frame" x="0.0" y="74" width="440" height="810"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="14" translatesAutoresizingMaskIntoConstraints="NO" id="sPk-eF-g3H">
-                                        <rect key="frame" x="20" y="16" width="400" height="619.33333333333337"/>
+                                        <rect key="frame" x="20" y="16" width="400" height="540"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="sEm-aB-c3D">
                                                 <rect key="frame" x="0.0" y="0.0" width="400" height="50"/>
@@ -248,25 +248,8 @@
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Startup Layer" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="SrF-nb-afx">
-                                                <rect key="frame" x="0.0" y="454" width="400" height="20.333333333333314"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                <nil key="textColor"/>
-                                                <nil key="highlightedColor"/>
-                                            </label>
-                                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="J2Q-D5-f7J">
-                                                <rect key="frame" x="0.0" y="488.33333333333337" width="400" height="32"/>
-                                                <segments>
-                                                    <segment title="None"/>
-                                                    <segment title="Light Pollution"/>
-                                                    <segment title="Clouds"/>
-                                                </segments>
-                                                <connections>
-                                                    <action selector="startupChanged:" destination="oPI-5W-FL8" eventType="valueChanged" id="XX6-Yd-dhT"/>
-                                                </connections>
-                                            </segmentedControl>
                                             <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="12" translatesAutoresizingMaskIntoConstraints="NO" id="WZ5-WM-xmy">
-                                                <rect key="frame" x="0.0" y="533.33333333333337" width="400" height="28"/>
+                                                <rect key="frame" x="0.0" y="454" width="400" height="28"/>
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Night Mode" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="q17-Mf-rkn">
                                                         <rect key="frame" x="0.0" y="4" width="327" height="20.333333333333332"/>
@@ -283,7 +266,7 @@
                                                 </subviews>
                                             </stackView>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sLo-cD-e9F">
-                                                <rect key="frame" x="0.0" y="575.33333333333337" width="400" height="44"/>
+                                                <rect key="frame" x="0.0" y="496" width="400" height="44"/>
                                                 <color key="backgroundColor" systemColor="systemRedColor"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="44" id="sLh-gH-i0J"/>
@@ -322,7 +305,6 @@
                         <outlet property="emailLabel" destination="sEm-aB-c3D" id="so2-oO-pP8"/>
                         <outlet property="myPostsCollectionView" destination="sCv-mN-o5P" id="so1-mM-nN7"/>
                         <outlet property="nightModeSwitch" destination="FhZ-tL-Heb" id="54L-JR-4LO"/>
-                        <outlet property="startupSegment" destination="J2Q-D5-f7J" id="oTD-5n-L10"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="kZ3-8E-K7F" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

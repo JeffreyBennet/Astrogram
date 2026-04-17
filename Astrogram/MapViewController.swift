@@ -25,7 +25,7 @@ final class MapViewController: UIViewController {
     private var pendingPostSelectionId: String?
     private var pendingPostSelectionCoordinate: CLLocationCoordinate2D?
     private var isMapNightModeEnabled: Bool {
-        AppSettings.shared.nightMode || AppSettings.shared.mapNightMode
+        AppSettings.shared.mapNightMode
     }
 
     override func viewDidLoad() {
@@ -37,7 +37,6 @@ final class MapViewController: UIViewController {
         mapView.showsUserLocation = true
 
         configureLocation()
-        applyStartupLayer()
         applyNightModeIfNeeded()
         updateNightModeButtonIcon()
         addTapGesture()
@@ -81,20 +80,6 @@ final class MapViewController: UIViewController {
             span: MKCoordinateSpan(latitudeDelta: 0.7, longitudeDelta: 0.7)
         )
         mapView.setRegion(region, animated: false)
-    }
-
-    private func applyStartupLayer() {
-        let s = AppSettings.shared
-        switch s.startupLayer {
-        case .none:
-            break
-        case .light:
-            s.showLightLayer = true
-        case .clouds:
-            s.showCloudLayer = true
-        case .visibility:
-            s.showVisibility = true
-        }
     }
 
     private func applyNightModeIfNeeded() {
