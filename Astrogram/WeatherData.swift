@@ -52,7 +52,11 @@ final class WeatherService {
         }
         guard shouldFetch else { return }
 
-        defer { cacheQueue.sync { inFlight.remove(key) } }
+        defer {
+            cacheQueue.sync {
+                _ = inFlight.remove(key)
+            }
+        }
 
         let urlString = "https://api.weatherapi.com/v1/current.json?key=\(apiKey)&q=\(coord.latitude),\(coord.longitude)&aqi=no"
         guard let url = URL(string: urlString) else { return }
