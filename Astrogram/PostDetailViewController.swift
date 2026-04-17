@@ -617,7 +617,7 @@ final class EditPostViewController: UIViewController {
 
         var fields: [String: Any] = [
             "title": title.trimmingCharacters(in: .whitespaces),
-            "description": descriptionField.text?.trimmingCharacters(in: .whitespaces) ?? "",
+            "description": descriptionField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "",
             "camera": cameraField.text?.trimmingCharacters(in: .whitespaces) ?? "",
             "iso": isoField.text?.trimmingCharacters(in: .whitespaces) ?? "",
             "exposure": exposureField.text?.trimmingCharacters(in: .whitespaces) ?? "",

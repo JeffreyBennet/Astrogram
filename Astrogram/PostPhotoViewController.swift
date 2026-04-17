@@ -156,7 +156,7 @@ final class PostPhotoViewController: UIViewController {
             imageURL: imageURL,
             imagePath: imagePath,
             title: titleField.text?.trimmingCharacters(in: .whitespaces) ?? "",
-            description: descriptionField.text?.trimmingCharacters(in: .whitespaces) ?? "",
+            description: descriptionField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "",
             camera: cameraField.text?.trimmingCharacters(in: .whitespaces) ?? "",
             iso: isoField.text?.trimmingCharacters(in: .whitespaces) ?? "",
             exposure: exposureField.text?.trimmingCharacters(in: .whitespaces) ?? "",
