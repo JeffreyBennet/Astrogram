@@ -6,6 +6,7 @@ final class LoginViewController: UIViewController {
     @IBOutlet private weak var userIDTextField: UITextField!
     @IBOutlet private weak var passwordTextField: UITextField!
     @IBOutlet private weak var statusLabel: UILabel!
+    private let passwordVisibilityButton = UIButton(type: .system)
     
     private let signUpViewControllerID = "SignUpViewController"
     private let tabBarControllerID = "TabViewController"
@@ -13,6 +14,7 @@ final class LoginViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         statusLabel.text = ""
+        configurePasswordField()
     }
     
     @IBAction private func signInButtonPressed(_ sender: Any) {
@@ -51,5 +53,39 @@ final class LoginViewController: UIViewController {
             tabBarVC.modalPresentationStyle = .fullScreen
             present(tabBarVC, animated: true)
         }
+    }
+
+    private func configurePasswordField() {
+        passwordTextField.isSecureTextEntry = true
+        passwordTextField.textContentType = .password
+        passwordTextField.autocorrectionType = .no
+        passwordTextField.autocapitalizationType = .none
+
+        let symbolConfig = UIImage.SymbolConfiguration(pointSize: 14, weight: .regular)
+        passwordVisibilityButton.setImage(UIImage(systemName: "eye", withConfiguration: symbolConfig), for: .normal)
+        passwordVisibilityButton.tintColor = .secondaryLabel
+        passwordVisibilityButton.addTarget(self, action: #selector(togglePasswordVisibility), for: .touchUpInside)
+        passwordTextField.rightView = makePasswordRightView(with: passwordVisibilityButton)
+        passwordTextField.rightViewMode = .always
+    }
+
+    @objc private func togglePasswordVisibility() {
+        passwordTextField.isSecureTextEntry.toggle()
+        let symbolName = passwordTextField.isSecureTextEntry ? "eye" : "eye.slash"
+        let symbolConfig = UIImage.SymbolConfiguration(pointSize: 14, weight: .regular)
+        passwordVisibilityButton.setImage(UIImage(systemName: symbolName, withConfiguration: symbolConfig), for: .normal)
+
+        // Keep existing text rendering/caret stable when toggling secure entry.
+        if let text = passwordTextField.text, passwordTextField.isFirstResponder {
+            passwordTextField.text = ""
+            passwordTextField.insertText(text)
+        }
+    }
+
+    private func makePasswordRightView(with button: UIButton) -> UIView {
+        let container = UIView(frame: CGRect(x: 0, y: 0, width: 34, height: 24))
+        button.frame = CGRect(x: 0, y: 0, width: 24, height: 24)
+        container.addSubview(button)
+        return container
     }
 }
