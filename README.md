@@ -1,40 +1,20 @@
-README – Astrogram
-CS 371L – Spring 2026
-Beta Release
+# Astrogram
+**Team Members**: Jeffrey Bennet, Helial Mordahl, Braden Carter, Suyog Valsangkar  
+**Group 13**  
+**Dependencies**:
 
-Contributions:
-
-Jeffrey Bennet (Release 25%, Overall 25%)  
-• Implemented the Login and Sign Up functionality  
-• Connected the application to Firebase for authentication and backend communication  
-• Bootstrapped the application UI by creating and organizing all primary View Controllers  
-• Implemented the Filter screen  
-• Implemented the Settings screen  
-• Implemented the Feed pages  
-• Handled uploading images/filesystem via Firebase  
-
-Helial (Release 25%, Overall 25%)  
-• Implemented the initial UI layering and screen structure using API schemas  
-• Helped organize the base layout for the application's interface  
-• Helped create post screen  
-• Implemented edit post screen  
-
-Braden (Release 25%, Overall 25%)  
-• Designed the UI/UX for the application  
-• Implemented layout constraints for proper screen responsiveness  
-• Added and integrated the Astrogram logo into the application  
-• Updated the Astrogram logo to be borderless  
-• Changed some UX behavior to follow a more expected user experience  
-
-Suyog (Release 25%, Overall 25%)  
-• Completed the final UI layering  
-• Implemented the external API connection for both cloud, and rain overlays  
-• Implemented Tile overlays for both of the above  
-• Poilshed UI for sleeker map look  
-• Added user post pins as map layer
-• Implemented map picker functionality for post's location selection
-
-Differences / Deviations:
-
-• Added in Login and Sign Up pages and implemente the Firebase connection which was initially a part of Beta, so we are ahead of schedule  
-• Ideally would like to use the same tile overlay implementation for light pollution as well as visibility rating, minimal change but slightly behind  
+| Feature | Description | Release Planned | Release Actual | Deviations | Who/Percentage Worked On |
+| ------- | ----------- | --------------- | -------------- | ---------- | ------------------------ |
+| UI | App logo, colors, splash screen, navigation, layouts | Final | Final | None | Braden (50%)<br>Jeffrey (50%) |
+| Splash Screen | Shining star animations upon launch before log-in screen | Not planned but extra | Final | None | Braden (100%) |
+| Scrollable Feed | Feed of other user's posts: posts can be starred and contain metadata of their origin/capturer | Beta | Beta | None | Jeffrey (50%)<br>Helial (50%) |
+| Create Post | Upload a picture to our Firebase storage so that it may be available on your profile & on others' feeds | Beta | Beta | None | Helial (75%)<br>Suyog (25%) |
+| Edit Post | Modify the metadata of your uploaded pictures | Beta | Beta | None | Heliel (70%)<br>Suyog(30%) |
+| Login/Signup | Create/login to your account via Firebase Auth | Beta | Alpha | Implemented Early | Jeffrey (50%)<br>Braden (50%) |
+| Map Feature | Shows the best places to explore for pictures; build via our API calls + internal calculations | Alpha | Alpha | None | Jeffrey (33%)<br>Helial (33%)<br>Suyog (33%) |
+| Map Layer Filtering | Changeable filters that our map uses to build itself visually (cloud coverage, weather data, etc.) | Alpha | Alpha | None | Suyog (50%)<br>Jeffrey (50%) |
+| Profile Page | Contains settings, the user's posts, ability to log out/delete account | Beta | Beta | None | Suyog (30%)<br>Helial (50%)<br>Jeffrey (20%) |
+| Firebase Auth | Used directly in login/signup; how we manage our users' identities | Beta | Alpha | Implemented Early | Jeffrey (100%) |
+| Firebase Storage | This is used to store the user's posts and our own metadata; supplies the feed with posts | Beta | Alpha | Implemented Early | Jeffrey (100%) |
+| AR Screen w/ Camera | Shows information about the bodies in the sky & if/when the sun/moon passes the spot aimed at | Final | Final | Unknown | Helial (100%) |
+|  |  |  |  |  |  |
