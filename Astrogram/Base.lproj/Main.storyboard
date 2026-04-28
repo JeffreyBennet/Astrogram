@@ -1148,7 +1148,7 @@
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="filled" image="scope" catalog="system" title="Capture Sky Point"/>
                                 <connections>
-                                    <segue destination="bMR-cJ-edf" kind="show" id="02J-Eu-ebe"/>
+                                    <segue destination="bMR-cJ-edf" kind="show" identifier="showSkyResults" id="02J-Eu-ebe"/>
                                 </connections>
                             </button>
                         </subviews>

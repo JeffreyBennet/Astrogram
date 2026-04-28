@@ -20,11 +20,6 @@ final class CameraViewController: UIViewController {
     private var currentAttitude: CMAttitude?
     private var currentLocation: CLLocation?
 
-    var lastRA: Double = 0
-    var lastDec: Double = 0
-    var lastAlt: Double = 0
-    var lastAz: Double = 0
-
     override func viewDidLoad() {
         super.viewDidLoad()
         // Set up camera, location, and motion so we can compute and display sky coordinates.
@@ -177,18 +172,9 @@ final class CameraViewController: UIViewController {
     }
 
     @objc private func captureTapped() {
-        guard let attitude = currentAttitude else {
-            let alert = UIAlertController(title: "No Motion Data",
-                                          message: "Could not read device orientation.",
-                                          preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
-            present(alert, animated: true)
-            return
-        }
-
-        let (alt, az) = altAz(from: attitude)
-
-        // Give a quick flash on the crosshair to confirm the tap.
+        // Quick flash on the crosshair to confirm the tap. The storyboard segue
+        // ("showSkyResults") drives the actual transition; data is handed off in
+        // prepare(for:sender:) using the attitude/location at this moment.
         UIView.animate(withDuration: 0.08, animations: {
             self.crosshairView.alpha = 0.2
         }, completion: { _ in
@@ -196,43 +182,48 @@ final class CameraViewController: UIViewController {
                 self.crosshairView.alpha = 1
             }
         })
+    }
 
-        guard let location = currentLocation else {
+    override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
+        guard identifier == "showSkyResults" else { return true }
+
+        if currentAttitude == nil {
+            let alert = UIAlertController(title: "No Motion Data",
+                                          message: "Could not read device orientation.",
+                                          preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true)
+            return false
+        }
+        if currentLocation == nil {
             let alert = UIAlertController(
                 title: "Location Needed",
                 message: "Enable location access to get RA/Dec and sky predictions.",
                 preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default))
             present(alert, animated: true)
-            return
+            return false
         }
+        return true
+    }
 
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        guard segue.identifier == "showSkyResults",
+              let destination = segue.destination as? SkyResultsViewController,
+              let attitude = currentAttitude,
+              let location = currentLocation else { return }
+
+        let (alt, az) = altAz(from: attitude)
         let lst = localSiderealTime(longitude: location.coordinate.longitude, date: Date())
         let (ra, dec) = equatorial(altitude: alt, azimuth: az,
                                    latitude: location.coordinate.latitude,
                                    lst: lst)
 
-        self.lastRA = ra
-        self.lastDec = dec
-        self.lastAlt = alt
-        self.lastAz = az
-
-        // Show the results sheet with captured coordinates and predictions.
-        let resultsVC = SkyResultsViewController()
-        resultsVC.capturedRA  = ra
-        resultsVC.capturedDec = dec
-        resultsVC.capturedAlt = alt
-        resultsVC.capturedAz  = az
-        resultsVC.observerLocation = location.coordinate
-
-        let nav = UINavigationController(rootViewController: resultsVC)
-        nav.modalPresentationStyle = .pageSheet
-        if let sheet = nav.sheetPresentationController {
-            sheet.detents = [.medium(), .large()]
-            sheet.prefersGrabberVisible = true
-            sheet.preferredCornerRadius = 18
-        }
-        present(nav, animated: true)
+        destination.capturedRA  = ra
+        destination.capturedDec = dec
+        destination.capturedAlt = alt
+        destination.capturedAz  = az
+        destination.observerLocation = location.coordinate
     }
 }
 
