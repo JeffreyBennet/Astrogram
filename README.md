@@ -1,7 +1,7 @@
 # Astrogram
 
 **Group number**: 13
-**Team members**: Jeffrey Bennet, Helial Mordahl, Braden Carter, Suyog Valsangkar
+**Team members**: Jeffrey Bennet, Helial Mordahl, Braden Carter, Suyog Valsangkar  
 **Name of project**: Astrogram
 
 ## Dependencies
