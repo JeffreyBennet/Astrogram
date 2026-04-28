@@ -197,7 +197,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = V3PLJC96CV;
+				DEVELOPMENT_TEAM = FZ84XQMBKS;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Astrogram/Info.plist;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Astrogram needs your location to show nearby stargazing conditions.";
@@ -230,7 +230,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = V3PLJC96CV;
+				DEVELOPMENT_TEAM = FZ84XQMBKS;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Astrogram/Info.plist;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Astrogram needs your location to show nearby stargazing conditions.";

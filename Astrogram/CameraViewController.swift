@@ -20,6 +20,11 @@ final class CameraViewController: UIViewController {
     private var currentAttitude: CMAttitude?
     private var currentLocation: CLLocation?
 
+    var lastRA: Double = 0
+    var lastDec: Double = 0
+    var lastAlt: Double = 0
+    var lastAz: Double = 0
+
     override func viewDidLoad() {
         super.viewDidLoad()
         // Set up camera, location, and motion so we can compute and display sky coordinates.
@@ -206,6 +211,11 @@ final class CameraViewController: UIViewController {
         let (ra, dec) = equatorial(altitude: alt, azimuth: az,
                                    latitude: location.coordinate.latitude,
                                    lst: lst)
+
+        self.lastRA = ra
+        self.lastDec = dec
+        self.lastAlt = alt
+        self.lastAz = az
 
         // Show the results sheet with captured coordinates and predictions.
         let resultsVC = SkyResultsViewController()
