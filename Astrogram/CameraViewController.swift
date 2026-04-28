@@ -10,13 +10,16 @@ final class CameraViewController: UIViewController {
     @IBOutlet weak var captureButton: UIButton!
     @IBOutlet weak var coordinateLabel: UILabel!
     
+    // Layer for displaying camera preview
     private let previewLayer = AVCaptureVideoPreviewLayer()
     private let captureSession = AVCaptureSession()
     private let sessionQueue = DispatchQueue(label: "camera.session")
 
+    // Location and motion managers for device location and orientation
     private let locationManager = CLLocationManager()
     private let motionManager = CMMotionManager()
 
+    // Current device attitude and location
     private var currentAttitude: CMAttitude?
     private var currentLocation: CLLocation?
 
@@ -37,8 +40,9 @@ final class CameraViewController: UIViewController {
         }
         motionManager.startDeviceMotionUpdates(using: .xTrueNorthZVertical,
                                                to: .main) { [weak self] motion, _ in
-            self?.currentAttitude = motion?.attitude
-            self?.updateCoordinateLabel()
+            guard let self = self else { return }
+            self.currentAttitude = motion?.attitude
+            self.updateCoordinateLabel()
         }
     }
 
@@ -55,6 +59,8 @@ final class CameraViewController: UIViewController {
         super.viewDidLayoutSubviews()
         previewLayer.frame = view.bounds
     }
+
+    // MARK: - Camera Setup
 
     private func setupCamera() {
         // Configure a simple rear-camera preview.
@@ -91,6 +97,8 @@ final class CameraViewController: UIViewController {
         ])
     }
 
+    // MARK: - Location Setup
+
     private func setupLocation() {
         // Ask for location so we can compute RA/Dec from Alt/Az.
         locationManager.delegate = self
@@ -99,13 +107,15 @@ final class CameraViewController: UIViewController {
         locationManager.startUpdatingLocation()
     }
 
-    // MARK: - Device Motion
+    // MARK: - Device Motion Setup
 
     // Prepare Core Motion to deliver orientation updates at ~30 fps.
     private func setupMotion() {
         guard motionManager.isDeviceMotionAvailable else { return }
         motionManager.deviceMotionUpdateInterval = 1.0 / 30.0
     }
+
+    // MARK: - Coordinate Calculations
 
     // Convert device attitude (pitch/yaw) into altitude and azimuth angles.
     private func altAz(from attitude: CMAttitude) -> (altitude: Double, azimuth: Double) {
@@ -146,6 +156,8 @@ final class CameraViewController: UIViewController {
         return lst < 0 ? lst + 24 : lst
     }
 
+    // MARK: - UI Updates
+
     private func updateCoordinateLabel() {
         // Build a friendly status string with Alt/Az, and RA/Dec when location is available.
         guard let attitude = currentAttitude else {
@@ -171,6 +183,8 @@ final class CameraViewController: UIViewController {
         coordinateLabel.text = text
     }
 
+    // MARK: - Capture Button Action
+
     @objc private func captureTapped() {
         // Quick flash on the crosshair to confirm the tap. The storyboard segue
         // ("showSkyResults") drives the actual transition; data is handed off in
@@ -188,20 +202,13 @@ final class CameraViewController: UIViewController {
         guard identifier == "showSkyResults" else { return true }
 
         if currentAttitude == nil {
-            let alert = UIAlertController(title: "No Motion Data",
-                                          message: "Could not read device orientation.",
-                                          preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
-            present(alert, animated: true)
+            presentAlert(title: "Motion Data Unavailable",
+                         message: "Could not read device orientation. Please try again.")
             return false
         }
         if currentLocation == nil {
-            let alert = UIAlertController(
-                title: "Location Needed",
-                message: "Enable location access to get RA/Dec and sky predictions.",
-                preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
-            present(alert, animated: true)
+            presentAlert(title: "Location Needed",
+                         message: "Enable location access to get RA/Dec and sky predictions.")
             return false
         }
         return true
@@ -225,11 +232,30 @@ final class CameraViewController: UIViewController {
         destination.capturedAz  = az
         destination.observerLocation = location.coordinate
     }
+
+    // MARK: - Helper
+
+    /// Presents an alert with given title and message on the main thread.
+    private func presentAlert(title: String, message: String) {
+        DispatchQueue.main.async {
+            let alert = UIAlertController(title: title,
+                                          message: message,
+                                          preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            self.present(alert, animated: true)
+        }
+    }
 }
+
+// MARK: - CLLocationManagerDelegate
 
 extension CameraViewController: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         currentLocation = locations.last
+    }
+
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        // Optionally handle location errors here for robustness.
     }
 }
 
@@ -238,6 +264,7 @@ extension CameraViewController: CLLocationManagerDelegate {
 @IBDesignable
 final class CrosshairView: UIView {
     
+    /// Size of the crosshair; triggers redraw on change.
     @IBInspectable var crosshairSize: CGFloat = 80 {
         didSet {
             invalidateIntrinsicContentSize()
