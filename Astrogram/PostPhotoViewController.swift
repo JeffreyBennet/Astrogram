@@ -5,6 +5,14 @@ import MapKit
 
 
 final class PostPhotoViewController: UIViewController {
+    private enum InputLimits {
+        static let title = 50
+        static let description = 200
+        static let camera = 100
+        static let isoDigits = 7
+        static let focalLengthDigits = 4
+        static let exposureDigits = 7
+    }
 
     // MARK: - IBOutlets
 
@@ -40,6 +48,12 @@ final class PostPhotoViewController: UIViewController {
         view.addGestureRecognizer(tap)
 
         configureLocationPicker()
+        titleField.delegate = self
+        descriptionField.delegate = self
+        cameraField.delegate = self
+        isoField.delegate = self
+        focalLengthField.delegate = self
+        exposureField.delegate = self
     }
 
     // MARK: - IBActions
@@ -91,7 +105,7 @@ final class PostPhotoViewController: UIViewController {
             statusLabel.text = "Please select a photo"
             return
         }
-        guard let title = titleField.text, !title.trimmingCharacters(in: .whitespaces).isEmpty else {
+        guard let title = titleField.text, !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             statusLabel.text = "Please enter a title"
             return
         }
@@ -148,16 +162,59 @@ final class PostPhotoViewController: UIViewController {
         present(navigationController, animated: true)
     }
 
+    private func normalizedDigits(from text: String, maxDigits: Int) -> String {
+        let digits = text.filter { $0.isWholeNumber }
+        return String(digits.prefix(maxDigits))
+    }
+
+    private func normalizedExposureValue(from text: String, maxDigits: Int) -> String {
+        var result = ""
+        var hasDecimalPoint = false
+        var digitCount = 0
+
+        for character in text {
+            if character.isWholeNumber {
+                guard digitCount < maxDigits else { continue }
+                result.append(character)
+                digitCount += 1
+            } else if character == ".", !hasDecimalPoint {
+                if result.isEmpty {
+                    result = "0"
+                }
+                result.append(character)
+                hasDecimalPoint = true
+            }
+        }
+        return result
+    }
+
+    private func formattedFocalLength(from text: String) -> String {
+        let digits = normalizedDigits(from: text, maxDigits: InputLimits.focalLengthDigits)
+        return digits.isEmpty ? "" : "\(digits)mm"
+    }
+
+    private func formattedExposure(from text: String) -> String {
+        let normalized = normalizedExposureValue(from: text, maxDigits: InputLimits.exposureDigits)
+        return normalized.isEmpty ? "" : "\(normalized)s"
+    }
+
     private func createPostDocument(userId: String, userEmail: String, imageURL: String, imagePath: String) {
+        let normalizedTitle = (titleField.text ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .prefix(InputLimits.title)
+        let normalizedDescription = (descriptionField.text ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .prefix(InputLimits.description)
+
         let post = AstroPost(
             id: nil,
             userId: userId,
             userEmail: userEmail,
             imageURL: imageURL,
             imagePath: imagePath,
-            title: titleField.text?.trimmingCharacters(in: .whitespaces) ?? "",
-            description: descriptionField.text?.trimmingCharacters(in: .whitespaces) ?? "",
-            camera: cameraField.text?.trimmingCharacters(in: .whitespaces) ?? "",
+            title: String(normalizedTitle),
+            description: String(normalizedDescription),
+            camera: String((cameraField.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines).prefix(InputLimits.camera)),
             iso: isoField.text?.trimmingCharacters(in: .whitespaces) ?? "",
             exposure: exposureField.text?.trimmingCharacters(in: .whitespaces) ?? "",
             focalLength: focalLengthField.text?.trimmingCharacters(in: .whitespaces) ?? "",
@@ -185,9 +242,28 @@ final class PostPhotoViewController: UIViewController {
         let alert = UIAlertController(title: "Posted!", message: "Your astrophoto has been shared.", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default) { _ in
             self.resetForm()
-            self.tabBarController?.selectedIndex = 3
+            self.navigateToProfile()
         })
         present(alert, animated: true)
+    }
+    
+    private func navigateToProfile() {
+        guard let tabBarController = self.tabBarController else { return }
+        let profileIndex = resolveProfileTabIndex(in: tabBarController)
+        tabBarController.selectedIndex = profileIndex
+    }
+    
+    private func resolveProfileTabIndex(in tabBarController: UITabBarController) -> Int {
+        guard let tabs = tabBarController.viewControllers else { return 3 }
+        return tabs.firstIndex(where: { controller in
+            if controller.tabBarItem.title == "Profile" {
+                return true
+            }
+            if let nav = controller as? UINavigationController {
+                return nav.viewControllers.first is SettingsViewController
+            }
+            return controller is SettingsViewController
+        }) ?? 3
     }
 
     private func resetForm() {
@@ -264,6 +340,54 @@ extension PostPhotoViewController: UITextFieldDelegate {
         }
         return true
     }
+
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        let currentText = textField.text ?? ""
+        guard let textRange = Range(range, in: currentText) else { return false }
+        let updatedText = currentText.replacingCharacters(in: textRange, with: string)
+
+        if textField == titleField {
+            return updatedText.count <= InputLimits.title
+        }
+
+        if textField == cameraField {
+            return updatedText.count <= InputLimits.camera
+        }
+
+        if textField == isoField {
+            let digits = normalizedDigits(from: updatedText, maxDigits: InputLimits.isoDigits)
+            textField.text = digits
+            return false
+        }
+
+        if textField == focalLengthField {
+            if string.isEmpty,
+               currentText.hasSuffix("mm"),
+               range.location >= max(0, currentText.count - 2) {
+                let digits = normalizedDigits(from: currentText, maxDigits: InputLimits.focalLengthDigits)
+                let trimmedDigits = String(digits.dropLast())
+                textField.text = trimmedDigits.isEmpty ? "" : "\(trimmedDigits)mm"
+            } else {
+                textField.text = formattedFocalLength(from: updatedText)
+            }
+            return false
+        }
+
+        if textField == exposureField {
+            if string.isEmpty,
+               currentText.hasSuffix("s"),
+               range.location >= max(0, currentText.count - 1) {
+                let normalized = normalizedExposureValue(from: currentText, maxDigits: InputLimits.exposureDigits)
+                let trimmed = String(normalized.dropLast())
+                textField.text = trimmed.isEmpty ? "" : "\(trimmed)s"
+            } else {
+                textField.text = formattedExposure(from: updatedText)
+            }
+            return false
+        }
+
+        return true
+    }
 }
 
 extension PostPhotoViewController: MapPickerDelegate {
@@ -271,5 +395,15 @@ extension PostPhotoViewController: MapPickerDelegate {
         selectedCoordinate = coordinate
         selectedPlaceName = placeName
         locationField.text = placeName
+    }
+}
+
+extension PostPhotoViewController: UITextViewDelegate {
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        guard textView == descriptionField else { return true }
+        let currentText = textView.text ?? ""
+        guard let textRange = Range(range, in: currentText) else { return false }
+        let updatedText = currentText.replacingCharacters(in: textRange, with: text)
+        return updatedText.count <= InputLimits.description
     }
 }

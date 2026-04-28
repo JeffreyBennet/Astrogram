@@ -16,18 +16,19 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="appIcon" translatesAutoresizingMaskIntoConstraints="NO" id="g4V-Kk-r98">
-                                <rect key="frame" x="20" y="250" width="353" height="352"/>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" image="appIconNoBG" translatesAutoresizingMaskIntoConstraints="NO" id="S1M-Ce-leV">
+                                <rect key="frame" x="110.66666666666669" y="340" width="172" height="172"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" secondItem="g4V-Kk-r98" secondAttribute="height" multiplier="353:352" id="JV8-qM-pWY"/>
+                                    <constraint firstAttribute="height" constant="172" id="7Qi-hX-NTL"/>
+                                    <constraint firstAttribute="width" constant="172" id="vR9-Fk-HtG"/>
                                 </constraints>
                             </imageView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="g4V-Kk-r98" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="eFs-9q-mb0"/>
-                            <constraint firstItem="g4V-Kk-r98" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="feh-et-dxC"/>
+                            <constraint firstItem="S1M-Ce-leV" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="L6F-f2-HMd"/>
+                            <constraint firstItem="S1M-Ce-leV" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="VWV-hL-q6X"/>
                         </constraints>
                     </view>
                 </viewController>
@@ -37,9 +38,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="appIcon" width="352" height="352"/>
-        <systemColor name="systemBackgroundColor">
-            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-        </systemColor>
+        <image name="appIconNoBG" width="352" height="352"/>
     </resources>
 </document>

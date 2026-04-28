@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		88D955AF2F85CD7A00EF834A /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 88D9557E2F85CD7A00EF834A /* .gitignore */; };
 		AD4475A32F60709000E9DDA4 /* FirebaseAI in Frameworks */ = {isa = PBXBuildFile; productRef = AD4475A22F60709000E9DDA4 /* FirebaseAI */; };
 		AD4475A52F60709000E9DDA4 /* FirebaseAILogic in Frameworks */ = {isa = PBXBuildFile; productRef = AD4475A42F60709000E9DDA4 /* FirebaseAILogic */; };
 		AD4475A72F60709000E9DDA4 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = AD4475A62F60709000E9DDA4 /* FirebaseAnalytics */; };
@@ -24,6 +25,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		88D9557E2F85CD7A00EF834A /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		ADF661A52F5A39A500DA095B /* Astrogram.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Astrogram.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -78,6 +80,7 @@
 			children = (
 				ADF661A62F5A39A500DA095B /* Products */,
 				ADF661A72F5A39A500DA095B /* Astrogram */,
+				88D9557E2F85CD7A00EF834A /* .gitignore */,
 			);
 			sourceTree = "<group>";
 		};
@@ -170,6 +173,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				88D955AF2F85CD7A00EF834A /* .gitignore in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -193,7 +197,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 7KRFBQYG8L;
+				DEVELOPMENT_TEAM = V3PLJC96CV;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Astrogram/Info.plist;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Astrogram needs your location to show nearby stargazing conditions.";
@@ -226,7 +230,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 7KRFBQYG8L;
+				DEVELOPMENT_TEAM = V3PLJC96CV;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Astrogram/Info.plist;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Astrogram needs your location to show nearby stargazing conditions.";

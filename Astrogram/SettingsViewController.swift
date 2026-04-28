@@ -3,7 +3,6 @@ import FirebaseAuth
 
 final class SettingsViewController: UIViewController {
 
-    @IBOutlet weak var startupSegment: UISegmentedControl!
     @IBOutlet weak var nightModeSwitch: UISwitch!
     @IBOutlet weak var myPostsCollectionView: UICollectionView!
     @IBOutlet weak var emailLabel: UILabel!
@@ -34,12 +33,7 @@ final class SettingsViewController: UIViewController {
 
     private func loadSettings() {
         let s = AppSettings.shared
-        startupSegment.selectedSegmentIndex = s.startupLayer.rawValue
         nightModeSwitch.isOn = s.nightMode
-    }
-
-    @IBAction func startupChanged(_ sender: UISegmentedControl) {
-        AppSettings.shared.startupLayer = StartupLayer(rawValue: sender.selectedSegmentIndex) ?? .none
     }
 
     @IBAction func nightModeChanged(_ sender: UISwitch) {
